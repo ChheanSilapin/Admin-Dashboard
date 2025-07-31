@@ -9,7 +9,7 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     // This code will only run on the client side
     const savedTheme = localStorage.getItem('theme');
-    const initialTheme = savedTheme || 'light'; // Default to light theme
+    const initialTheme = savedTheme || 'dark'; // Default to light theme
 
     setTheme(initialTheme);
     setIsInitialized(true);

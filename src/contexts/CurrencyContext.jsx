@@ -10,19 +10,19 @@ export const useCurrency = () => {
   return context;
 };
 
-// Currency configuration
+
 const CURRENCIES = {
   USD: {
     code: 'USD',
     symbol: '$',
     name: 'US Dollar',
-    rate: 1, // Base currency
+    rate: 1, 
   },
   KHR: {
     code: 'KHR',
     symbol: '៛',
     name: 'Cambodian Riel',
-    rate: 4100, // Approximate rate (1 USD = 4100 KHR)
+    rate: 4100, 
   },
 };
 

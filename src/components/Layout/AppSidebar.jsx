@@ -166,7 +166,7 @@ const AppSidebar = () => {
                   className={`ml-auto w-5 h-5 transition-transform duration-200 ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
-                      ? "rotate-180 text-brand-500 dark:text-brand-400"
+                      ? "rotate-180"
                       : "text-gray-500 dark:text-gray-400"
                   }`}
                 />
@@ -233,7 +233,7 @@ const AppSidebar = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white h-screen transition-all duration-300 ease-in-out z-50
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 border-r border-green-200 dark:border-green-800 text-gray-900 dark:text-white h-screen transition-all duration-300 ease-in-out z-50
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -254,11 +254,11 @@ const AppSidebar = () => {
       >
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <div className="text-xl font-bold text-brand-600 dark:text-brand-400">
+            <div className="text-xl font-bold text-gray-800 dark:text-white">
               Admin Dashboard
             </div>
           ) : (
-            <div className="w-8 h-8 bg-brand-500 dark:bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 bg-white dark:bg-gray-900 rounded-lg flex items-center justify-center text-gray-800 dark:text-white font-bold">
               A
             </div>
           )}

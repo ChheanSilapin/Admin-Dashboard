@@ -45,68 +45,68 @@ const mergeClasses = (defaultClasses, customClasses) => {
 
 
 // Wrapper components to maintain backward compatibility
-export const GridIcon = ({ className = "w-6 h-6" }) => (
-  <Grid3X3 className={className} />
+export const GridIcon = ({ className = "" }) => (
+  <Grid3X3 className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const UserCircleIcon = ({ className = "w-6 h-6" }) => (
-  <UserCircle className={className} />
+export const UserCircleIcon = ({ className = "" }) => (
+  <UserCircle className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const UsersIcon = ({ className = "w-6 h-6" }) => (
-  <Users className={className} />
+export const UsersIcon = ({ className = "" }) => (
+  <Users className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const BankIcon = ({ className = "w-6 h-6" }) => (
-  <Building2 className={className} />
+export const BankIcon = ({ className = "" }) => (
+  <Building2 className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const ShieldIcon = ({ className = "w-6 h-6" }) => (
-  <Shield className={className} />
+export const ShieldIcon = ({ className = "" }) => (
+  <Shield className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const KeyIcon = ({ className = "w-6 h-6" }) => (
-  <Key className={className} />
+export const KeyIcon = ({ className = "" }) => (
+  <Key className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const CogIcon = ({ className = "w-6 h-6" }) => (
-  <Settings className={className} />
+export const CogIcon = ({ className = "" }) => (
+  <Settings className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const ChevronDownIcon = ({ className = "w-5 h-5" }) => (
-  <ChevronDown className={className} />
+export const ChevronDownIcon = ({ className = "" }) => (
+  <ChevronDown className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
 );
 
-export const MenuIcon = ({ className = "w-6 h-6" }) => (
-  <Menu className={className} />
+export const MenuIcon = ({ className = "" }) => (
+  <Menu className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const XIcon = ({ className = "w-6 h-6" }) => (
-  <X className={className} />
+export const XIcon = ({ className = "" }) => (
+  <X className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const BellIcon = ({ className = "w-6 h-6" }) => (
-  <Bell className={className} />
+export const BellIcon = ({ className = "" }) => (
+  <Bell className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
 export const SearchIcon = ({ className = "" }) => (
   <Search className={mergeClasses('w-4 h-4 text-green-500', className)} />
 );
 
-export const SunIcon = ({ className = "w-5 h-5" }) => (
-  <Sun className={className} />
+export const SunIcon = ({ className = "" }) => (
+  <Sun className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
 );
 
-export const MoonIcon = ({ className = "w-5 h-5" }) => (
-  <Moon className={className} />
+export const MoonIcon = ({ className = "" }) => (
+  <Moon className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
 );
 
-export const HorizontalDotsIcon = ({ className = "w-6 h-6" }) => (
-  <MoreHorizontal className={className} />
+export const HorizontalDotsIcon = ({ className = "" }) => (
+  <MoreHorizontal className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
-export const CurrencyDollarIcon = ({ className = "w-6 h-6" }) => (
-  <DollarSign className={className} />
+export const CurrencyDollarIcon = ({ className = "" }) => (
+  <DollarSign className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
 );
 
 export const ArrowUpIcon = ({ className = "w-4 h-4" }) => (
