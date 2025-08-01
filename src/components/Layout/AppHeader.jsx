@@ -42,11 +42,11 @@ const AppHeader = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-green-200 z-99999 dark:border-green-800 dark:bg-gray-900 lg:border-b">
+    <header className="sticky top-0 flex w-full bg-white border-green-200 z-99999 dark:border-blue-400 dark:bg-gray-900 lg:border-b">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
-        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-green-200 dark:border-green-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
+        <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-green-200 dark:border-blue-400 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           <button
-            className="items-center justify-center w-10 h-10 text-gray-500 border-green-200 rounded-lg z-99999 dark:border-green-800 lg:flex dark:text-green-400 lg:h-11 lg:w-11 lg:border"
+            className="items-center justify-center w-10 h-10 text-gray-500 border-green-200 rounded-lg z-99999 dark:border-blue-400 lg:flex dark:text-blue-400 lg:h-11 lg:w-11 lg:border"
             onClick={() => {
               if (window.innerWidth >= 1024) {
                 toggleSidebar();
@@ -63,12 +63,12 @@ const AppHeader = () => {
             <form>
               <div className="relative">
                 <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
-                  <SearchIcon className="" />
+                  <SearchIcon className="dark:text-blue-400" />
                 </span>
                 <input
                   type="text"
                   placeholder="Search or type command..."
-                  className="h-11 w-full rounded-lg border border-green-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-green-500/10 dark:border-green-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
+                  className="h-11 w-full rounded-lg border border-green-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-green-500/10 dark:border-blue-400 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
                 />
                 
               </div>
@@ -81,16 +81,16 @@ const AppHeader = () => {
           <div ref={currencyDropdownRef} className="relative">
             <button
               onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-              className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
+              className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
             >
-              <CurrencyDollarIcon className="w-4 h-4 text-green-500" />
+              <CurrencyDollarIcon className="w-4 h-4 text-green-400" />
               <span>{currentCurrency}</span>
               <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Currency Dropdown - Responsive positioning */}
             {showCurrencyDropdown && (
-              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
                 {Object.values(currencies).map((currency) => (
                   <button
                     key={currency.code}
@@ -100,16 +100,16 @@ const AppHeader = () => {
                     }}
                     className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between ${
                       currentCurrency === currency.code
-                        ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-medium'
+                        ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-blue-400 font-medium'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-green-500">{currency.symbol}</span>
+                      <span className="text-green-400">{currency.symbol}</span>
                       <span>{currency.code}</span>
                     </div>
                     {currentCurrency === currency.code && (
-                      <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-green-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -123,7 +123,7 @@ const AppHeader = () => {
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-green-50 dark:border-green-800 dark:bg-gray-900 dark:text-green-400 dark:hover:bg-green-800 dark:hover:text-white"
+              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-green-50 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-400 dark:hover:bg-green-800 dark:hover:text-white"
             >
               <SunIcon className="hidden dark:block w-5 h-5" />
               <MoonIcon className="block dark:hidden w-5 h-5" />
@@ -131,7 +131,7 @@ const AppHeader = () => {
           </div>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-500 rounded-lg hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-800">
+          <button className="relative p-2 text-gray-500 rounded-lg hover:bg-green-50 dark:text-blue-400 dark:hover:bg-green-800">
             <BellIcon />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
@@ -140,14 +140,14 @@ const AppHeader = () => {
           <div ref={userDropdownRef} className="relative">
             <button
               onClick={() => setShowUserDropdown(!showUserDropdown)}
-              className="h-10 w-10 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center justify-center"
+              className="h-10 w-10 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center justify-center"
             >
-              <UserCircleIcon className="w-5 h-5 text-green-500" />
+              <UserCircleIcon className="w-5 h-5 text-green-400" />
             </button>
 
             {/* User Dropdown - Responsive positioning */}
             {showUserDropdown && (
-              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-48 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-48 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
                 <div className="px-4 py-3 border-b border-green-200 dark:border-green-700">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">admin@example.com</p>

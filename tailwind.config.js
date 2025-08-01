@@ -9,6 +9,8 @@ export default {
     extend: {
       fontFamily: {
         outfit: ['Outfit', 'sans-serif'],
+        khmer: ['Noto Sans Khmer', 'sans-serif'],
+        sans: ['Outfit', 'Noto Sans Khmer', 'sans-serif'],
       },
       screens: {
         '2xsm': '375px',

@@ -1,106 +1,61 @@
-import { useState, useRef, useEffect } from 'react';
-import { XIcon, ChevronDownIcon } from '../../../icons';
+import { XIcon } from '../../../icons';
+import { useCustomerForm } from './useCustomerForm';
+import CustomerForm from './CustomerForm';
 
-const EditCustomerModal = ({ 
-  isOpen, 
-  onClose, 
+const EditCustomerModal = ({
+  isOpen,
+  onClose,
   onSubmit,
   customer = null
 }) => {
-  // Form state - initialize with customer data
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    country: 'Cambodia',
-    currency: 'USD',
-    balance: '',
-    bankName: '',
-    bankCode: '',
-    accountNumber: '',
-    note: '',
-    status: 'Active'
-  });
+  // Use shared form logic (for edit mode, pass customer data)
+  const {
+    formData,
+    displayValues,
+    errors,
+    dropdowns,
+    banks,
+    banksLoading,
+    getBankOptions,
+    getBankById,
+    handleInputChange,
+    handleNumberInput,
+    handleCurrencyChange,
+    toggleDropdown,
+    closeAllDropdowns,
+    validateForm,
+    resetForm
+  } = useCustomerForm(customer, []);
 
-  // Dropdown state
-  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const currencyDropdownRef = useRef(null);
-  const statusDropdownRef = useRef(null);
-
-  // Options
-  const currencyOptions = [
-    { value: 'USD', label: 'USD' },
-    { value: 'KHR', label: 'KHR' }
-  ];
-
-  const statusOptions = [
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' }
-  ];
-
-  // Initialize form data when customer changes
-  useEffect(() => {
-    if (customer) {
-      const nameParts = customer.name.split(' ');
-      setFormData({
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        email: customer.email || '',
-        phone: customer.phone || '',
-        address: '',
-        city: '',
-        country: 'Cambodia',
-        currency: customer.currency || 'USD',
-        balance: customer.balance?.toString() || '',
-        bankName: '',
-        bankCode: '',
-        accountNumber: customer.accountNumber || '',
-        note: '',
-        status: customer.status || 'Active'
-      });
-    }
-  }, [customer]);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target)) {
-        setIsCurrencyDropdownOpen(false);
-      }
-      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target)) {
-        setIsStatusDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate form (for edit mode, don't check unique ID)
+    if (!validateForm(true)) {
+      return;
+    }
+
+    // Get selected bank details
+    const selectedBank = getBankById(formData.bank_id);
 
     // Create updated customer object
     const updatedCustomer = {
       ...customer,
-      name: `${formData.firstName} ${formData.lastName}`,
-      email: formData.email,
-      phone: formData.phone,
-      balance: parseFloat(formData.balance) || 0,
+      CustomerId: formData.CustomerId,
+      Type: formData.Type,
       currency: formData.currency,
-      status: formData.status,
-      accountNumber: formData.accountNumber,
+      Credit: parseFloat(formData.Credit),
+      amount: parseFloat(formData.amount),
+      bank_name: selectedBank?.bank_name || '',
+      bank_code: selectedBank?.bank_code || '',
+      bank_id: formData.bank_id,
+      Note: formData.Note,
+      // Legacy fields - using updated full name
+      name: formData.fullName.trim(),
+      email: customer.email,
+      phone: customer.phone,
+      accountNumber: customer.accountNumber,
     };
 
     // Call parent submit handler
@@ -110,211 +65,66 @@ const EditCustomerModal = ({
     onClose();
   };
 
-  if (!isOpen || !customer) return null;
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto z-999999 p-4">
+    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
       <div
-        className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-sm"
+        className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
         onClick={onClose}
       ></div>
-      <div className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-3xl shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-gray-900 shadow-theme-xl max-h-[95vh] overflow-y-auto mx-4">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
         >
-          <XIcon className="w-4 h-4" />
+          <XIcon className="w-5 h-5" />
         </button>
 
-        <div className="px-4 pb-6 sm:px-6 lg:px-11 lg:pb-11 pt-6">
+        <div className="px-6 pb-6 pt-6 sm:px-8 sm:pb-8 sm:pt-8">
           <div className="mb-6">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white">
-              Edit Customer
+            <h4 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              Edit Customer Info
             </h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Update customer account and banking details
+            <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
+              Update customer transaction record and banking details
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Customer Information */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-                Customer Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Phone *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-              </div>
-            </div>
+          <CustomerForm
+            formData={formData}
+            displayValues={displayValues}
+            errors={errors}
+            dropdowns={dropdowns}
+            banks={banks}
+            banksLoading={banksLoading}
+            getBankOptions={getBankOptions}
+            getBankById={getBankById}
+            handleInputChange={handleInputChange}
+            handleNumberInput={handleNumberInput}
+            handleCurrencyChange={handleCurrencyChange}
+            toggleDropdown={toggleDropdown}
+            closeAllDropdowns={closeAllDropdowns}
+            onSubmit={handleSubmit}
+          />
 
-            {/* Account Information */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-                Account Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Account Number *
-                  </label>
-                  <input
-                    type="text"
-                    name="accountNumber"
-                    value={formData.accountNumber}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Balance
-                  </label>
-                  <input
-                    type="number"
-                    name="balance"
-                    value={formData.balance}
-                    onChange={handleInputChange}
-                    step="0.01"
-                    min="0"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
-                  />
-                </div>
-                
-                {/* Currency Dropdown */}
-                <div ref={currencyDropdownRef} className="relative">
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Currency *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-left focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:text-white text-sm shadow-theme-xs flex items-center justify-between"
-                  >
-                    <span>{formData.currency}</span>
-                    <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${isCurrencyDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isCurrencyDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
-                      {currencyOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, currency: option.value }));
-                            setIsCurrencyDropdownOpen(false);
-                          }}
-                          className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white text-sm first:rounded-t-lg last:rounded-b-lg"
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Status Dropdown */}
-                <div ref={statusDropdownRef} className="relative">
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Status *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-left focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:text-white text-sm shadow-theme-xs flex items-center justify-between"
-                  >
-                    <span>{formData.status}</span>
-                    <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isStatusDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
-                      {statusOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, status: option.value }));
-                            setIsStatusDropdownOpen(false);
-                          }}
-                          className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white text-sm first:rounded-t-lg last:rounded-b-lg"
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 h-9 text-sm shadow-theme-xs"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 h-9 text-sm shadow-theme-xs"
-              >
-                Update Customer
-              </button>
-            </div>
-          </form>
+          {/* Form Actions */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-3 py-2 text-sm bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
+            >
+              Close
+            </button>
+            <button
+              type="submit"
+              form="customer-form"
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-4 py-2 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
+            >
+              Update Customer Info
+            </button>
+          </div>
         </div>
       </div>
     </div>

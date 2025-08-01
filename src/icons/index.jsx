@@ -46,67 +46,67 @@ const mergeClasses = (defaultClasses, customClasses) => {
 
 // Wrapper components to maintain backward compatibility
 export const GridIcon = ({ className = "" }) => (
-  <Grid3X3 className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Grid3X3 className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const UserCircleIcon = ({ className = "" }) => (
-  <UserCircle className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <UserCircle className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const UsersIcon = ({ className = "" }) => (
-  <Users className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Users className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const BankIcon = ({ className = "" }) => (
-  <Building2 className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Building2 className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const ShieldIcon = ({ className = "" }) => (
-  <Shield className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Shield className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const KeyIcon = ({ className = "" }) => (
-  <Key className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Key className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const CogIcon = ({ className = "" }) => (
-  <Settings className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Settings className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const ChevronDownIcon = ({ className = "" }) => (
-  <ChevronDown className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
+  <ChevronDown className={mergeClasses('w-4 h-4 text-gray-400', className)} />
 );
 
 export const MenuIcon = ({ className = "" }) => (
-  <Menu className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Menu className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const XIcon = ({ className = "" }) => (
-  <X className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <X className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const BellIcon = ({ className = "" }) => (
-  <Bell className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <Bell className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const SearchIcon = ({ className = "" }) => (
-  <Search className={mergeClasses('w-4 h-4 text-green-500', className)} />
+  <Search className={mergeClasses('w-4 h-4 text-green-400', className)} />
 );
 
 export const SunIcon = ({ className = "" }) => (
-  <Sun className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
+  <Sun className={mergeClasses('w-5 h-5 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const MoonIcon = ({ className = "" }) => (
-  <Moon className={mergeClasses('w-5 h-5 text-green-500 dark:text-green-400', className)} />
+  <Moon className={mergeClasses('w-5 h-5 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const HorizontalDotsIcon = ({ className = "" }) => (
-  <MoreHorizontal className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <MoreHorizontal className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const CurrencyDollarIcon = ({ className = "" }) => (
-  <DollarSign className={mergeClasses('w-6 h-6 text-green-500 dark:text-green-400', className)} />
+  <DollarSign className={mergeClasses('w-6 h-6 text-green-400 dark:text-blue-400', className)} />
 );
 
 export const ArrowUpIcon = ({ className = "w-4 h-4" }) => (
@@ -146,3 +146,6 @@ export const XMarkIcon = ({ className = "w-4 h-4" }) => (
 export const PlusIcon = ({ className = "w-4 h-4" }) => (
   <ArrowDown className={className} />
 );
+
+// Export the mergeClasses utility function
+export { mergeClasses };

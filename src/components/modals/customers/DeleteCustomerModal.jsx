@@ -16,17 +16,17 @@ const DeleteCustomerModal = ({
   if (!isOpen || !customer) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto z-999999 p-4">
+    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
       <div
-        className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-sm"
+        className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
         onClick={onClose}
       ></div>
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-xl">
+      <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-gray-900 shadow-theme-xl mx-4">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
         >
-          <XIcon className="w-4 h-4" />
+          <XIcon className="w-5 h-5" />
         </button>
 
         <div className="px-6 py-8">
@@ -76,14 +76,14 @@ const DeleteCustomerModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 h-9 text-sm shadow-theme-xs"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleConfirm}
-              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200 h-9 text-sm shadow-theme-xs"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg transition px-5 py-3.5 text-sm bg-red-600 text-white shadow-theme-xs hover:bg-red-700 disabled:bg-red-300"
             >
               Delete Customer
             </button>

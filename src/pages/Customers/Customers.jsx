@@ -7,8 +7,8 @@ import { AddCustomerModal, EditCustomerModal, DeleteCustomerModal } from '../../
 const Customers = () => {
   const { formatAmount } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All Status');
   const [currencyFilter, setCurrencyFilter] = useState('All Currencies');
+  const [typeFilter, setTypeFilter] = useState('All Types');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -16,16 +16,16 @@ const Customers = () => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
   // Dropdown options
-  const statusOptions = [
-    { value: 'All Status', label: 'All Status' },
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' }
-  ];
-
   const currencyOptions = [
     { value: 'All Currencies', label: 'All Currencies' },
     { value: 'USD', label: 'USD' },
     { value: 'KHR', label: 'KHR' }
+  ];
+
+  const typeOptions = [
+    { value: 'All Types', label: 'All Types' },
+    { value: 'Deposit', label: 'Deposit' },
+    { value: 'Withdraw', label: 'Withdraw' }
   ];
 
   // Single ref for filter dropdown (responsive)
@@ -51,49 +51,81 @@ const Customers = () => {
   const [customers, setCustomers] = useState([
     {
       id: 1,
+      CustomerId: 'CUST-001',
+      Type: 'Deposit',
+      currency: 'USD',
+      Credit: 15000.00,
+      amount: 15000.00,
+      bank_name: 'ABA Bank',
+      bank_code: 'ABA001',
+      bank_id: 1,
+      created_by: 1, // Current user ID
+      Note: 'Initial deposit for new customer',
+      created_at: '2024-01-15T10:30:00Z',
+      // Legacy fields for backward compatibility during transition
       name: 'John Doe',
       email: 'john.doe@example.com',
       phone: '+855 12 345 678',
-      balance: 15000,
-      currency: 'USD',
-      status: 'Active',
       joinDate: '2024-01-15',
       accountNumber: 'ACC-001',
     },
     {
       id: 2,
+      CustomerId: 'CUST-002',
+      Type: 'Withdraw',
+      currency: 'USD',
+      Credit: 10000.00,
+      amount: 1500.00,
+      bank_name: 'ACLEDA Bank',
+      bank_code: 'ACL002',
+      bank_id: 2,
+      created_by: 1,
+      Note: 'Withdrawal for business expenses',
+      created_at: '2024-02-20T14:15:00Z',
+      // Legacy fields
       name: 'Sarah Wilson',
       email: 'sarah.wilson@example.com',
       phone: '+855 98 765 432',
-      balance: 8500,
-      currency: 'USD',
-      status: 'Active',
       joinDate: '2024-02-20',
       accountNumber: 'ACC-002',
     },
     {
       id: 3,
+      CustomerId: 'CUST-003',
+      Type: 'Deposit',
+      currency: 'KHR',
+      Credit: 0.00,
+      amount: 0.00,
+      bank_name: 'Canadia Bank',
+      bank_code: 'CAN003',
+      bank_id: 3,
+      created_by: 1,
+      Note: 'Account setup - no initial transaction',
+      created_at: '2024-03-10T09:45:00Z',
+      // Legacy fields
       name: 'Michael Chen',
       email: 'michael.chen@example.com',
       phone: '+855 77 123 456',
-      balance: 0,
-      currency: 'KHR',
-      status: 'Inactive',
       joinDate: '2024-03-10',
       accountNumber: 'ACC-003',
     },
+    
+   
+
   ]);
 
   // Enhanced filtering logic
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.accountNumber.toLowerCase().includes(searchTerm.toLowerCase());
+                         customer.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         customer.CustomerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         customer.bank_name.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'All Status' || customer.status === statusFilter;
     const matchesCurrency = currencyFilter === 'All Currencies' || customer.currency === currencyFilter;
+    const matchesType = typeFilter === 'All Types' || customer.Type === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesCurrency;
+    return matchesSearch && matchesCurrency && matchesType;
   });
 
   // Handle adding new customer
@@ -151,20 +183,20 @@ const Customers = () => {
       </div>
 
       {/* Responsive Search and Filters */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-green-800 p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-blue-400 p-4 sm:p-6">
         {/* Single responsive layout */}
         <div className="flex flex-col md:flex-row gap-3 md:items-start">
           {/* Search Bar */}
           <div className="relative flex-1 md:max-w-md">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <SearchIcon className="" />
+              <SearchIcon className="dark:text-blue-400" />
             </div>
             <input
               type="text"
               placeholder="Search by name, email, or account number..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 w-full pl-9 pr-3 py-2 border border-green-200 dark:border-green-800 rounded-lg bg-white dark:bg-gray-900 focus:border-green-200 focus:outline-none focus:ring-2 focus:ring-green-200 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
+              className="h-10 w-full pl-9 pr-3 py-2 border border-green-200 dark:border-blue-400 rounded-lg bg-white dark:bg-gray-900 focus:border-green-200 focus:outline-none focus:ring-2 focus:ring-green-200 dark:text-white dark:placeholder-gray-400 text-sm shadow-theme-xs"
             />
           </div>
 
@@ -172,18 +204,18 @@ const Customers = () => {
           <div ref={filterDropdownRef} className="relative">
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
+              className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
             >
-              <Filter className="w-4 h-4 text-green-500" />
+              <Filter className="w-4 h-4 text-green-400 dark:text-blue-400" />
               Filter
               <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Filter Dropdown - Responsive positioning */}
             {isFilterDropdownOpen && (
-              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-80 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-80 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
                 {/* Header with close button */}
-                <div className="flex items-center justify-between p-4 border-b border-green-200 dark:border-green-700">
+                <div className="flex items-center justify-between p-4 border-b border-green-200 dark:border-blue-400">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">Filters</h3>
                   <button
                     onClick={() => setIsFilterDropdownOpen(false)}
@@ -198,35 +230,6 @@ const Customers = () => {
                 <div className="p-4">
                   {/* Filter Sections in 2-column grid */}
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Status Filter */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Status
-                      </label>
-                      <div className="space-y-1">
-                        {statusOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            onClick={() => {
-                              setStatusFilter(option.value);
-                              // Don't close dropdown to allow multiple selections
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between ${
-                              statusFilter === option.value
-                                ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-medium'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800'
-                            }`}
-                          >
-                            <span>{option.label}</span>
-                            {statusFilter === option.value && (
-                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
 
                     {/* Currency Filter */}
                     <div>
@@ -257,14 +260,45 @@ const Customers = () => {
                         ))}
                       </div>
                     </div>
+
+                    {/* Type Filter */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Type
+                      </label>
+                      <div className="space-y-1">
+                        {typeOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              setTypeFilter(option.value);
+                              // Don't close dropdown to allow multiple selections
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center justify-between ${
+                              typeFilter === option.value
+                                ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-medium'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800'
+                            }`}
+                          >
+                            <span>{option.label}</span>
+                            {typeFilter === option.value && (
+                              <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Clear Filters */}
-                  <div className="pt-4 mt-4 border-t border-green-200 dark:border-green-800">
+                  <div className="pt-4 mt-4 border-t border-green-200 dark:border-blue-400">
                     <button
                       onClick={() => {
                         setStatusFilter('All Status');
                         setCurrencyFilter('All Currencies');
+                        setTypeFilter('All Types');
                         setIsFilterDropdownOpen(false);
                       }}
                       className="w-full text-left px-3 py-2 rounded-md text-sm text-gray-500 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-800 transition-colors"
@@ -280,7 +314,7 @@ const Customers = () => {
       </div>
 
       {/* Responsive Customer List */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-green-800 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-blue-400 overflow-hidden">
         {/* Table Header - Desktop Only */}
         <div className="hidden lg:block">
           <div className="bg-green-50 dark:bg-gray-800 px-6 py-3">
@@ -289,16 +323,16 @@ const Customers = () => {
                 Customer
               </div>
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Contact
+                Transaction
               </div>
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Balance
+                Bank
               </div>
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Status
+                Amount
               </div>
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Join Date
+                Date
               </div>
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
@@ -308,9 +342,9 @@ const Customers = () => {
         </div>
 
         {/* Customer Items - Responsive Layout */}
-        <div className="divide-y divide-green-200 dark:divide-green-800">
-          {filteredCustomers.map((customer) => (
-            <div key={customer.id} className="p-4 lg:px-6 lg:py-4 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+        <div className="divide-y divide-green-200 dark:divide-blue-400">
+          {filteredCustomers.map((customer, index) => (
+            <div key={`${customer.CustomerId}-${index}`} className="p-4 lg:px-6 lg:py-4 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
               {/* Mobile/Tablet Card Layout */}
               <div className="lg:hidden">
                 <div className="flex items-start space-x-4">
@@ -329,35 +363,44 @@ const Customers = () => {
                           {customer.accountNumber}
                         </p>
                       </div>
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ml-2 ${
-                          customer.status === 'Active'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400'
-                        }`}
-                      >
-                        {customer.status}
-                      </span>
                     </div>
 
                     <div className="mt-3 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Email:</span>
-                        <span className="text-sm text-gray-900 dark:text-white truncate ml-2">{customer.email}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Customer ID:</span>
+                        <span className="text-sm text-gray-900 dark:text-white truncate ml-2">{customer.CustomerId}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Phone:</span>
-                        <span className="text-sm text-gray-900 dark:text-white">{customer.phone}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Balance:</span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {customer.currency} {formatAmount(customer.balance)}
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Type:</span>
+                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+                          customer.Type === 'Deposit'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
+                            : 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-400'
+                        }`}>
+                          {customer.Type}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Joined:</span>
-                        <span className="text-sm text-gray-900 dark:text-white">{customer.joinDate}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Bank:</span>
+                        <span className="text-sm text-gray-900 dark:text-white truncate ml-2">{customer.bank_name}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {customer.currency} {formatAmount(customer.amount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Credit:</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {customer.currency} {formatAmount(customer.Credit)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Created:</span>
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {new Date(customer.created_at).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
 
@@ -394,38 +437,46 @@ const Customers = () => {
                         {customer.name}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {customer.accountNumber}
+                        {customer.CustomerId}
                       </div>
                     </div>
                   </div>
 
-                  {/* Contact Info */}
-                  <div>
-                    <div className="text-sm text-gray-900 dark:text-white">{customer.email}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{customer.phone}</div>
-                  </div>
-
-                  {/* Balance */}
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {customer.currency} {formatAmount(customer.balance)}
-                  </div>
-
-                  {/* Status */}
+                  {/* Transaction Info */}
                   <div>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        customer.status === 'Active'
+                        customer.Type === 'Deposit'
                           ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400'
+                          : 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-400'
                       }`}
                     >
-                      {customer.status}
+                      {customer.Type}
                     </span>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {customer.currency}
+                    </div>
                   </div>
 
-                  {/* Join Date */}
+                  {/* Bank Info */}
+                  <div>
+                    <div className="text-sm text-gray-900 dark:text-white">{customer.bank_name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{customer.bank_code}</div>
+                  </div>
+
+                  {/* Amount */}
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {customer.currency} {formatAmount(customer.amount)}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Credit: {customer.currency} {formatAmount(customer.Credit)}
+                    </div>
+                  </div>
+
+                  {/* Created Date */}
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {customer.joinDate}
+                    {new Date(customer.created_at).toLocaleDateString()}
                   </div>
 
                   {/* Actions */}
