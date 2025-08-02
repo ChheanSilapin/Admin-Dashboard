@@ -14,7 +14,6 @@ const AddCustomerModal = ({
     displayValues,
     errors,
     dropdowns,
-    banks,
     banksLoading,
     getBankOptions,
     getBankById,
@@ -54,11 +53,11 @@ const AddCustomerModal = ({
       bank_id: formData.bank_id,
       created_by: 1, // Current user ID - in real app, get from auth context
       Note: formData.Note,
-      created_at: new Date().toISOString(),
+      created_at: new Date().toISOString().split('.')[0] + 'Z',
       // Legacy fields for backward compatibility
       name: formData.fullName.trim(),
-      email: `${formData.CustomerId.toLowerCase()}@example.com`,
-      phone: '+855 12 345 678',
+      //email: `${formData.CustomerId.toLowerCase()}@example.com`,
+      //phone: '+855 12 345 678',
       joinDate: new Date().toISOString().split('T')[0],
       accountNumber: `ACC-${String(customers.length + 1).padStart(3, '0')}`,
     };
@@ -104,7 +103,6 @@ const AddCustomerModal = ({
             displayValues={displayValues}
             errors={errors}
             dropdowns={dropdowns}
-            banks={banks}
             banksLoading={banksLoading}
             getBankOptions={getBankOptions}
             getBankById={getBankById}
@@ -121,14 +119,14 @@ const AddCustomerModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center justify-center gap-2 rounded-md transition px-3 py-2 text-sm bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-3 py-2 text-sm bg-white text-[var(--color-white-100)] ring-1 ring-inset ring-red-300 hover:bg-gray-50 dark:bg-red-600 dark:text-[var(--color-white-100)] dark:ring-red-700 dark:hover:bg-red-700 dark:hover:text-gray-300"
             >
               Close
             </button>
             <button
               type="submit"
               form="customer-form"
-              className="inline-flex items-center justify-center gap-2 rounded-md transition px-4 py-2 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-4 py-2 text-sm bg-blue-400 text-[var(--color-white-100)] shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
             >
               Add Customer Info
             </button>

@@ -17,7 +17,16 @@ import {
   MoreHorizontal,
   DollarSign,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Eye,
+  EyeOff,
+  ChevronLeft,
+  Lock,
+  Check,
+  Plus,
+  Pencil,
+  Trash2,
+  Image
 } from 'lucide-react';
 
 const mergeClasses = (defaultClasses, customClasses) => {
@@ -119,32 +128,46 @@ export const ArrowDownIcon = ({ className = "w-4 h-4" }) => (
 export const TrendingUpIcon = ({ className = "w-4 h-4" }) => (
   <ArrowUp className={className} />
 );
+
+// Authentication and Form Icons
 export const EyeIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+  <Eye className={className} />
 );
-export const PercentIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+
+export const EyeOffIcon = ({ className = "w-4 h-4" }) => (
+  <EyeOff className={className} />
 );
-export const PencilIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+
+export const ChevronLeftIcon = ({ className = "w-4 h-4" }) => (
+  <ChevronLeft className={className} />
 );
-export const TrashIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
-);
-export const PhotoIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
-);
+
 export const LockIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+  <Lock className={className} />
 );
+
 export const CheckIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+  <Check className={className} />
 );
+
 export const XMarkIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+  <X className={className} />
 );
+
 export const PlusIcon = ({ className = "w-4 h-4" }) => (
-  <ArrowDown className={className} />
+  <Plus className={className} />
+);
+
+export const PencilIcon = ({ className = "w-4 h-4" }) => (
+  <Pencil className={className} />
+);
+
+export const TrashIcon = ({ className = "w-4 h-4" }) => (
+  <Trash2 className={className} />
+);
+
+export const PhotoIcon = ({ className = "w-4 h-4" }) => (
+  <Image className={className} />
 );
 
 // Export the mergeClasses utility function

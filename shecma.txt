@@ -1,0 +1,94 @@
++ Requirement Client :
+- Authentication (Role base, Permission)
+- Customer (Noted info)
+- 
+- work on update ...
+
+
++++ Design field Table +++                                                 
+
++ Authentication :
+- id
+- user_name
+- password_hash
+- role_id
+- status
+- created_at
+
++ Customer Info :
+- id
+- CustomerId (Text)
+- Type (Deposit/WEithdraw)
+- currency (USD/KHR)
+- Credit (Number)
+- amount (Number)
+- bank_name (Text)
+- bank_code(number)
+- bank_id (from Bank_Table)
+- created_by (user_id)
+- Note
+- create_at (timestamp)
+- 
+1.000000
+1,000,000
++ Bank :
+- Id
+- Bank Name (Text)
+- Icon/Logo (file Iamge)
+
+
++ Roles :
+- id
+- name (Ex: admin, sale, etc.)
+- description
+
+
++ Permission :
+- id
+- category
+- action  (CRUD action)
+
+
++ Role_Permission :
+- id
+- role_id
+- permission_id
+Note: Role_Permission between Roles and Permission
+
+
+Phase 1: Foundation Components
+Authentication Context - Central state management for user authentication
+Form Components - Reusable UI components following template design
+Authentication Icons - Missing icons for the auth interface
+Phase 2: Authentication Components
+Login Component - Main authentication interface
+Protected Route Component - Route protection logic
+Authentication Service - API integration layer
+Phase 3: Integration
+App.jsx Updates - Route configuration and context integration
+Sidebar Updates - Role-based navigation visibility
+4. Key Features
+Authentication Context will include:
+
+User state management (authenticated, user data, roles, permissions)
+Login/logout functions
+Token management (storage, refresh, validation)
+Role-based permission checking
+Loading states and error handling
+Login Component will feature:
+
+Email/password form with validation
+"Remember me" checkbox
+"Forgot password" link
+Social login buttons (Google, X/Twitter)
+Responsive design matching template
+Dark/light mode support
+Protected Routes will provide:
+
+Authentication status checking
+Role-based access control
+Automatic redirects
+Loading states during auth checks
+
+16a34a
+38bdf8

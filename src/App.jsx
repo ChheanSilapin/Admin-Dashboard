@@ -13,6 +13,7 @@ import AddPermission from './pages/Permissions/AddPermission';
 import RolePermissions from './pages/RolePermissions/RolePermissions';
 import Users from './pages/Users/Users';
 import AuthSettings from './pages/Auth/AuthSettings';
+import LoginPage from './pages/Auth/LoginPage';
 import NotFound from './pages/NotFound/NotFound';
 
 function App() {
@@ -46,6 +47,9 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/auth/settings" element={<AuthSettings />} />
           </Route>
+
+          {/* Auth Routes (outside of AppLayout) */}
+          <Route path="/login" element={<LoginPage />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />

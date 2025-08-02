@@ -3,17 +3,33 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { UsersIcon, SearchIcon, ChevronDownIcon } from '../../icons';
 import { Filter } from 'lucide-react';
 import { AddCustomerModal, EditCustomerModal, DeleteCustomerModal } from '../../components/modals/customers';
+import { useCustomers } from '../../hooks/useCustomers';
 
 const Customers = () => {
   const { formatAmount } = useCurrency();
+  const {
+    customers,
+    loading,
+    error,
+    addCustomer,
+    updateCustomer,
+    deleteCustomer
+  } = useCustomers();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currencyFilter, setCurrencyFilter] = useState('All Currencies');
   const [typeFilter, setTypeFilter] = useState('All Types');
+  const [statusFilter, setStatusFilter] = useState('All Status');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+
+  // Loading states for individual operations
+  const [isAdding, setIsAdding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Dropdown options
   const currencyOptions = [
@@ -48,71 +64,7 @@ const Customers = () => {
     };
   }, [isFilterDropdownOpen]);
 
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      CustomerId: 'CUST-001',
-      Type: 'Deposit',
-      currency: 'USD',
-      Credit: 15000.00,
-      amount: 15000.00,
-      bank_name: 'ABA Bank',
-      bank_code: 'ABA001',
-      bank_id: 1,
-      created_by: 1, // Current user ID
-      Note: 'Initial deposit for new customer',
-      created_at: '2024-01-15T10:30:00Z',
-      // Legacy fields for backward compatibility during transition
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+855 12 345 678',
-      joinDate: '2024-01-15',
-      accountNumber: 'ACC-001',
-    },
-    {
-      id: 2,
-      CustomerId: 'CUST-002',
-      Type: 'Withdraw',
-      currency: 'USD',
-      Credit: 10000.00,
-      amount: 1500.00,
-      bank_name: 'ACLEDA Bank',
-      bank_code: 'ACL002',
-      bank_id: 2,
-      created_by: 1,
-      Note: 'Withdrawal for business expenses',
-      created_at: '2024-02-20T14:15:00Z',
-      // Legacy fields
-      name: 'Sarah Wilson',
-      email: 'sarah.wilson@example.com',
-      phone: '+855 98 765 432',
-      joinDate: '2024-02-20',
-      accountNumber: 'ACC-002',
-    },
-    {
-      id: 3,
-      CustomerId: 'CUST-003',
-      Type: 'Deposit',
-      currency: 'KHR',
-      Credit: 0.00,
-      amount: 0.00,
-      bank_name: 'Canadia Bank',
-      bank_code: 'CAN003',
-      bank_id: 3,
-      created_by: 1,
-      Note: 'Account setup - no initial transaction',
-      created_at: '2024-03-10T09:45:00Z',
-      // Legacy fields
-      name: 'Michael Chen',
-      email: 'michael.chen@example.com',
-      phone: '+855 77 123 456',
-      joinDate: '2024-03-10',
-      accountNumber: 'ACC-003',
-    },
-    
-   
 
-  ]);
 
   // Enhanced filtering logic
   const filteredCustomers = customers.filter(customer => {
@@ -129,8 +81,16 @@ const Customers = () => {
   });
 
   // Handle adding new customer
-  const handleAddCustomer = (newCustomer) => {
-    setCustomers(prev => [...prev, newCustomer]);
+  const handleAddCustomer = async (newCustomer) => {
+    try {
+      setIsAdding(true);
+      await addCustomer(newCustomer);
+    } catch (err) {
+      console.error('Failed to add customer:', err);
+      // Error is already handled in the hook
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   // Handle editing customer
@@ -139,14 +99,18 @@ const Customers = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateCustomer = (updatedCustomer) => {
-    setCustomers(prev =>
-      prev.map(customer =>
-        customer.id === updatedCustomer.id ? updatedCustomer : customer
-      )
-    );
-    setIsEditModalOpen(false);
-    setSelectedCustomer(null);
+  const handleUpdateCustomer = async (updatedCustomer) => {
+    try {
+      setIsUpdating(true);
+      await updateCustomer(updatedCustomer.id, updatedCustomer);
+      setIsEditModalOpen(false);
+      setSelectedCustomer(null);
+    } catch (err) {
+      console.error('Failed to update customer:', err);
+      // Error is already handled in the hook
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   // Handle deleting customer
@@ -155,10 +119,18 @@ const Customers = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = (customerId) => {
-    setCustomers(prev => prev.filter(customer => customer.id !== customerId));
-    setIsDeleteModalOpen(false);
-    setSelectedCustomer(null);
+  const handleConfirmDelete = async (customerId) => {
+    try {
+      setIsDeleting(true);
+      await deleteCustomer(customerId);
+      setIsDeleteModalOpen(false);
+      setSelectedCustomer(null);
+    } catch (err) {
+      console.error('Failed to delete customer:', err);
+      // Error is already handled in the hook
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -175,14 +147,42 @@ const Customers = () => {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 h-9 text-sm shadow-theme-xs"
+          disabled={loading || isAdding}
+          className="inline-flex items-center justify-center px-3 py-2 bg-blue-400 hover:bg-blue-500/50 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 h-9 text-sm shadow-theme-xs"
         >
-          <UsersIcon className="w-4 h-4 mr-2" />
-          Add Customer
+          <UsersIcon className="w-4 h-4 mr-2 dark:text-white" />
+          {isAdding ? 'Adding...' : 'Add Customer'}
         </button>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-blue-400 p-8">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading customers...</span>
+          </div>
+        </div>
+      )}
+
       {/* Responsive Search and Filters */}
+      {!loading && (
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-blue-400 p-4 sm:p-6">
         {/* Single responsive layout */}
         <div className="flex flex-col md:flex-row gap-3 md:items-start">
@@ -312,13 +312,15 @@ const Customers = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Responsive Customer List */}
+      {!loading && (
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-green-200 dark:border-blue-400 overflow-hidden">
         {/* Table Header - Desktop Only */}
         <div className="hidden lg:block">
-          <div className="bg-green-50 dark:bg-gray-800 px-6 py-3">
-            <div className="grid grid-cols-6 gap-4">
+          <div className="bg-green-50 dark:bg-gray-800 px-4 py-2">
+            <div className="grid grid-cols-6 gap-3">
               <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Customer
               </div>
@@ -344,35 +346,35 @@ const Customers = () => {
         {/* Customer Items - Responsive Layout */}
         <div className="divide-y divide-green-200 dark:divide-blue-400">
           {filteredCustomers.map((customer, index) => (
-            <div key={`${customer.CustomerId}-${index}`} className="p-4 lg:px-6 lg:py-4 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+            <div key={`${customer.CustomerId}-${index}`} className="p-3 lg:px-4 lg:py-2.5 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
               {/* Mobile/Tablet Card Layout */}
               <div className="lg:hidden">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-600 dark:text-blue-400 font-medium text-lg">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-600 dark:text-blue-400 font-medium text-base">
                       {customer.name.charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="text-base font-medium text-gray-900 dark:text-white truncate">
+                        <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {customer.name}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           {customer.accountNumber}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-2 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Customer ID:</span>
-                        <span className="text-sm text-gray-900 dark:text-white truncate ml-2">{customer.CustomerId}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Customer ID:</span>
+                        <span className="text-xs text-gray-900 dark:text-white truncate ml-2">{customer.CustomerId}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Type:</span>
-                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Type:</span>
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${
                           customer.Type === 'Deposit'
                             ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
                             : 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-400'
@@ -381,39 +383,41 @@ const Customers = () => {
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Bank:</span>
-                        <span className="text-sm text-gray-900 dark:text-white truncate ml-2">{customer.bank_name}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Bank:</span>
+                        <span className="text-xs text-gray-900 dark:text-white truncate ml-2">{customer.bank_name}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Amount:</span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Amount:</span>
+                        <span className="text-xs font-medium text-gray-900 dark:text-white">
                           {customer.currency} {formatAmount(customer.amount)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Credit:</span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Credit:</span>
+                        <span className="text-xs font-medium text-gray-900 dark:text-white">
                           {customer.currency} {formatAmount(customer.Credit)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Created:</span>
-                        <span className="text-sm text-gray-900 dark:text-white">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Created:</span>
+                        <span className="text-xs text-gray-900 dark:text-white">
                           {new Date(customer.created_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
 
-                    <div className="mt-4 flex space-x-3">
+                    <div className="mt-3 flex space-x-2">
                       <button
                         onClick={() => handleEditCustomer(customer)}
-                        className="flex-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-3 py-2 rounded-lg text-xs font-medium transition-colors h-8 flex items-center justify-center"
+                        disabled={isUpdating || isDeleting}
+                        className="flex-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed px-2 py-1.5 rounded-md text-xs font-medium transition-colors h-7 flex items-center justify-center"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteCustomer(customer)}
-                        className="flex-1 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 px-3 py-2 rounded-lg text-xs font-medium transition-colors h-8 flex items-center justify-center"
+                        disabled={isUpdating || isDeleting}
+                        className="flex-1 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed px-2 py-1.5 rounded-md text-xs font-medium transition-colors h-7 flex items-center justify-center"
                       >
                         Delete
                       </button>
@@ -424,19 +428,19 @@ const Customers = () => {
 
               {/* Desktop Table Row Layout */}
               <div className="hidden lg:block">
-                <div className="grid grid-cols-6 gap-4 items-center">
+                <div className="grid grid-cols-6 gap-3 items-center">
                   {/* Customer Info */}
                   <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 dark:text-blue-400 font-medium">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
                         {customer.name.charAt(0)}
                       </span>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {customer.name}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {customer.CustomerId}
                       </div>
                     </div>
@@ -445,7 +449,7 @@ const Customers = () => {
                   {/* Transaction Info */}
                   <div>
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${
                         customer.Type === 'Deposit'
                           ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
                           : 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-400'
@@ -453,7 +457,7 @@ const Customers = () => {
                     >
                       {customer.Type}
                     </span>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                       {customer.currency}
                     </div>
                   </div>
@@ -461,7 +465,7 @@ const Customers = () => {
                   {/* Bank Info */}
                   <div>
                     <div className="text-sm text-gray-900 dark:text-white">{customer.bank_name}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{customer.bank_code}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{customer.bank_code}</div>
                   </div>
 
                   {/* Amount */}
@@ -475,21 +479,23 @@ const Customers = () => {
                   </div>
 
                   {/* Created Date */}
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(customer.created_at).toLocaleDateString()}
                   </div>
 
                   {/* Actions */}
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1">
                     <button
                       onClick={() => handleEditCustomer(customer)}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 px-2 py-1 text-xs font-medium"
+                      disabled={isUpdating || isDeleting}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 disabled:text-gray-400 disabled:cursor-not-allowed px-1.5 py-0.5 text-xs font-medium"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteCustomer(customer)}
-                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 px-2 py-1 text-xs font-medium"
+                      disabled={isUpdating || isDeleting}
+                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:text-gray-400 disabled:cursor-not-allowed px-1.5 py-0.5 text-xs font-medium"
                     >
                       Delete
                     </button>
@@ -500,6 +506,7 @@ const Customers = () => {
           ))}
         </div>
       </div>
+      )}
 
       {/* Add Customer Modal */}
       <AddCustomerModal
@@ -507,6 +514,7 @@ const Customers = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddCustomer}
         customers={customers}
+        isLoading={isAdding}
       />
 
       {/* Edit Customer Modal */}
@@ -518,6 +526,7 @@ const Customers = () => {
         }}
         onSubmit={handleUpdateCustomer}
         customer={selectedCustomer}
+        isLoading={isUpdating}
       />
 
       {/* Delete Customer Modal */}
@@ -529,6 +538,7 @@ const Customers = () => {
         }}
         onConfirm={handleConfirmDelete}
         customer={selectedCustomer}
+        isLoading={isDeleting}
       />
     </div>
   );

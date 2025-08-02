@@ -3,13 +3,13 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // This code will only run on the client side
     const savedTheme = localStorage.getItem('theme');
-    const initialTheme = savedTheme || 'dark'; // Default to light theme
+    const initialTheme = savedTheme || 'dark'; // Default to dark theme
 
     setTheme(initialTheme);
     setIsInitialized(true);

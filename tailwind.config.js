@@ -30,7 +30,10 @@ export default {
       colors: {
         current: 'currentColor',
         transparent: 'transparent',
-        white: '#ffffff',
+        white:{
+          DEFAULT: '#ffffff',
+          100: '#e2e8f0',
+        },
         black: '#101828',
         brand: {
           25: '#f2f7ff',
