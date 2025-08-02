@@ -48,15 +48,13 @@ export const CurrencyProvider = ({ children }) => {
     const currency = CURRENCIES[currencyCode];
     if (!currency) return amount;
 
-    // Convert from USD base to target currency
-    const convertedAmount = currencyCode === 'USD' ? amount : amount * currency.rate;
-    
-    // Format with appropriate decimal places
+    // No conversion needed - amounts are already stored in their respective currencies
+    // Just format the amount with appropriate decimal places
     const decimals = currencyCode === 'KHR' ? 0 : 2;
     const formatted = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
-    }).format(convertedAmount);
+    }).format(amount);
 
     return `${currency.symbol}${formatted}`;
   };

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -17,8 +18,12 @@ const AppHeader = () => {
   const { toggleMobileSidebar, toggleSidebar } = useSidebar();
   const { toggleTheme } = useTheme();
   const { currentCurrency, currencies, switchCurrency } = useCurrency();
+  const location = useLocation();
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  // Check if we're on the Customer page to hide global currency selector
+  const isCustomerPage = location.pathname === '/customers';
 
   // Refs for dropdown management
   const currencyDropdownRef = useRef(null);
@@ -77,47 +82,49 @@ const AppHeader = () => {
         </div>
 
         <div className="flex items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none">
-          {/* Currency Selector */}
-          <div ref={currencyDropdownRef} className="relative">
-            <button
-              onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-              className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
-            >
-              <CurrencyDollarIcon className="w-4 h-4 text-green-400" />
-              <span>{currentCurrency}</span>
-              <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
-            </button>
+          {/* Currency Selector - Hidden on Customer page */}
+          {!isCustomerPage && (
+            <div ref={currencyDropdownRef} className="relative">
+              <button
+                onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
+                className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
+              >
+                <span className="text-green-400 font-medium">{currencies[currentCurrency]?.symbol || '$'}</span>
+                <span>{currentCurrency}</span>
+                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
+              </button>
 
-            {/* Currency Dropdown - Responsive positioning */}
-            {showCurrencyDropdown && (
-              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
-                {Object.values(currencies).map((currency) => (
-                  <button
-                    key={currency.code}
-                    onClick={() => {
-                      switchCurrency(currency.code);
-                      setShowCurrencyDropdown(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between ${
-                      currentCurrency === currency.code
-                        ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-blue-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-400">{currency.symbol}</span>
-                      <span>{currency.code}</span>
-                    </div>
-                    {currentCurrency === currency.code && (
-                      <svg className="w-4 h-4 text-green-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              {/* Currency Dropdown - Responsive positioning */}
+              {showCurrencyDropdown && (
+                <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
+                  {Object.values(currencies).map((currency) => (
+                    <button
+                      key={currency.code}
+                      onClick={() => {
+                        switchCurrency(currency.code);
+                        setShowCurrencyDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between ${
+                        currentCurrency === currency.code
+                          ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-blue-400 font-medium'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-400">{currency.symbol}</span>
+                        <span>{currency.code}</span>
+                      </div>
+                      {currentCurrency === currency.code && (
+                        <svg className="w-4 h-4 text-green-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center gap-2 2xsm:gap-3">
             {/* Theme toggle */}
