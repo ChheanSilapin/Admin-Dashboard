@@ -1,0 +1,388 @@
+{
+  "banks": [
+    {
+      "id": 1,
+      "bank_name": "ABA Bank",
+      "bank_code": "ABA001",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "bank_name": "ACLEDA Bank",
+      "bank_code": "ACL002",
+      "status": "active",
+      "created_at": "2024-01-15T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "bank_name": "Canadia Bank",
+      "bank_code": "CAN003",
+      "status": "active",
+      "created_at": "2024-02-01T00:00:00Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "1",
+      "CustomerId": "CUST-001",
+      "Type": "Deposit",
+      "currency": "USD",
+      "Credit": 15000,
+      "amount": 15000,
+      "bank_name": "ABA Bank",
+      "bank_code": "ABA001",
+      "bank_id": 1,
+      "created_by": 1,
+      "Note": "Initial deposit for new customer",
+      "created_at": "2024-01-15T10:30:00Z",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+855 12 345 678",
+      "joinDate": "2024-01-15",
+      "accountNumber": "ACC-001"
+    },
+    {
+      "id": "2",
+      "CustomerId": "CUST-002",
+      "Type": "Deposit",
+      "currency": "USD",
+      "Credit": 10000,
+      "amount": 1500,
+      "bank_name": "ACLEDA Bank",
+      "bank_code": "ACL002",
+      "bank_id": 2,
+      "created_by": 1,
+      "Note": "Withdrawal for business expenses",
+      "created_at": "2024-02-20T14:15:00Z",
+      "name": "Sarah Wilson",
+      "email": "sarah.wilson@example.com",
+      "phone": "+855 98 765 432",
+      "joinDate": "2024-02-20",
+      "accountNumber": "ACC-002"
+    },
+    {
+      "id": "3",
+      "CustomerId": "CUST-003",
+      "Type": "Deposit",
+      "currency": "KHR",
+      "Credit": 100000,
+      "amount": 100000,
+      "bank_name": "Canadia Bank",
+      "bank_code": "CAN003",
+      "bank_id": 3,
+      "created_by": 1,
+      "Note": "Account setup - no initial transaction",
+      "created_at": "2024-03-10T09:45:00Z",
+      "name": "Michael Chen",
+      "email": "michael.chen@example.com",
+      "phone": "+855 77 123 456",
+      "joinDate": "2024-03-10",
+      "accountNumber": "ACC-003"
+    },
+    {
+      "id": 4,
+      "CustomerId": "cust-100",
+      "Type": "Deposit",
+      "currency": "USD",
+      "Credit": 1000,
+      "amount": 1000,
+      "bank_name": "ABA Bank",
+      "bank_code": "ABA001",
+      "bank_id": 1,
+      "created_by": 1,
+      "Note": "kak customer",
+      "created_at": "2025-08-01T08:35:24.895Z",
+      "name": "vanna kem",
+      "phone": "+855 12 345 678",
+      "joinDate": "2025-08-01",
+      "accountNumber": "ACC-004"
+    },
+    {
+      "id": 5,
+      "CustomerId": "cust-200",
+      "Type": "Deposit",
+      "currency": "USD",
+      "Credit": 1000,
+      "amount": 1000,
+      "bank_name": "ACLEDA Bank",
+      "bank_code": "ACL002",
+      "bank_id": 2,
+      "created_by": 1,
+      "Note": "",
+      "created_at": "2025-08-01T08:42:09Z",
+      "name": "vichet",
+      "joinDate": "2025-08-01",
+      "accountNumber": "ACC-005"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@company.com",
+      "password": "admin123",
+      "role_id": 1,
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_login": "2025-08-04T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "username": "customer_service",
+      "email": "cs@company.com",
+      "password": "cs123456",
+      "role_id": 2,
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_login": "2025-08-04T07:30:00Z"
+    },
+    {
+      "id": 3,
+      "username": "sales_user",
+      "email": "sales@company.com",
+      "password": "sales123",
+      "role_id": 3,
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_login": "2025-08-04T07:00:00Z"
+    }
+  ],
+  "roles": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "description": "Full system access with all CRUD operations",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Customer Service",
+      "description": "CRUD access to Customer and Bank management only",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Sales",
+      "description": "Read-only access to all data",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "permissions": [
+    {
+      "id": 1,
+      "category": "customers",
+      "action": "create"
+    },
+    {
+      "id": 2,
+      "category": "customers",
+      "action": "read"
+    },
+    {
+      "id": 3,
+      "category": "customers",
+      "action": "update"
+    },
+    {
+      "id": 4,
+      "category": "customers",
+      "action": "delete"
+    },
+    {
+      "id": 5,
+      "category": "banks",
+      "action": "create"
+    },
+    {
+      "id": 6,
+      "category": "banks",
+      "action": "read"
+    },
+    {
+      "id": 7,
+      "category": "banks",
+      "action": "update"
+    },
+    {
+      "id": 8,
+      "category": "banks",
+      "action": "delete"
+    },
+    {
+      "id": 9,
+      "category": "users",
+      "action": "create"
+    },
+    {
+      "id": 10,
+      "category": "users",
+      "action": "read"
+    },
+    {
+      "id": 11,
+      "category": "users",
+      "action": "update"
+    },
+    {
+      "id": 12,
+      "category": "users",
+      "action": "delete"
+    },
+    {
+      "id": 13,
+      "category": "roles",
+      "action": "create"
+    },
+    {
+      "id": 14,
+      "category": "roles",
+      "action": "read"
+    },
+    {
+      "id": 15,
+      "category": "roles",
+      "action": "update"
+    },
+    {
+      "id": 16,
+      "category": "roles",
+      "action": "delete"
+    }
+  ],
+  "role_permissions": [
+    {
+      "id": 1,
+      "role_id": 1,
+      "permission_id": 1
+    },
+    {
+      "id": 2,
+      "role_id": 1,
+      "permission_id": 2
+    },
+    {
+      "id": 3,
+      "role_id": 1,
+      "permission_id": 3
+    },
+    {
+      "id": 4,
+      "role_id": 1,
+      "permission_id": 4
+    },
+    {
+      "id": 5,
+      "role_id": 1,
+      "permission_id": 5
+    },
+    {
+      "id": 6,
+      "role_id": 1,
+      "permission_id": 6
+    },
+    {
+      "id": 7,
+      "role_id": 1,
+      "permission_id": 7
+    },
+    {
+      "id": 8,
+      "role_id": 1,
+      "permission_id": 8
+    },
+    {
+      "id": 9,
+      "role_id": 1,
+      "permission_id": 9
+    },
+    {
+      "id": 10,
+      "role_id": 1,
+      "permission_id": 10
+    },
+    {
+      "id": 11,
+      "role_id": 1,
+      "permission_id": 11
+    },
+    {
+      "id": 12,
+      "role_id": 1,
+      "permission_id": 12
+    },
+    {
+      "id": 13,
+      "role_id": 1,
+      "permission_id": 13
+    },
+    {
+      "id": 14,
+      "role_id": 1,
+      "permission_id": 14
+    },
+    {
+      "id": 15,
+      "role_id": 1,
+      "permission_id": 15
+    },
+    {
+      "id": 16,
+      "role_id": 1,
+      "permission_id": 16
+    },
+    {
+      "id": 17,
+      "role_id": 2,
+      "permission_id": 1
+    },
+    {
+      "id": 18,
+      "role_id": 2,
+      "permission_id": 2
+    },
+    {
+      "id": 19,
+      "role_id": 2,
+      "permission_id": 3
+    },
+    {
+      "id": 20,
+      "role_id": 2,
+      "permission_id": 4
+    },
+    {
+      "id": 21,
+      "role_id": 2,
+      "permission_id": 5
+    },
+    {
+      "id": 22,
+      "role_id": 2,
+      "permission_id": 6
+    },
+    {
+      "id": 23,
+      "role_id": 2,
+      "permission_id": 7
+    },
+    {
+      "id": 24,
+      "role_id": 2,
+      "permission_id": 8
+    },
+    {
+      "id": 25,
+      "role_id": 3,
+      "permission_id": 2
+    },
+    {
+      "id": 26,
+      "role_id": 3,
+      "permission_id": 6
+    }
+  ]
+}
