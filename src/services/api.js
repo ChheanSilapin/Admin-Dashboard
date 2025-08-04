@@ -3,7 +3,8 @@
  * Provides centralized HTTP request functions for the application
  */
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000;
 
 /**
  * Generic API request function with error handling
@@ -19,6 +20,8 @@ const apiRequest = async (endpoint, options = {}) => {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      // Add timeout using AbortController
+      signal: AbortSignal.timeout(API_TIMEOUT),
       ...options,
     };
 
@@ -30,6 +33,9 @@ const apiRequest = async (endpoint, options = {}) => {
 
     return await response.json();
   } catch (error) {
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${API_TIMEOUT}ms`);
+    }
     console.error('API request failed:', error);
     throw error;
   }
@@ -64,6 +70,109 @@ export const customerAPI = {
     apiRequest(`/customers/${id}`, {
       method: 'DELETE',
     }),
+};
+
+/**
+ * Bank API functions
+ */
+export const bankAPI = {
+  // Get all banks
+  getAll: () => apiRequest('/banks'),
+
+  // Get bank by ID
+  getById: (id) => apiRequest(`/banks/${id}`),
+
+  // Create new bank
+  create: (bankData) =>
+    apiRequest('/banks', {
+      method: 'POST',
+      body: JSON.stringify(bankData),
+    }),
+
+  // Update bank
+  update: (id, bankData) =>
+    apiRequest(`/banks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(bankData),
+    }),
+
+  // Delete bank
+  delete: (id) =>
+    apiRequest(`/banks/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+/**
+ * Authentication API functions
+ */
+export const authAPI = {
+  // Authenticate user with username and password
+  login: async (username, password) => {
+    try {
+      // Get all users from JSON server
+      const users = await apiRequest('/users');
+
+      // Find user with matching username and password
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (!user) {
+        throw new Error('Invalid username or password');
+      }
+
+      if (user.status !== 'active') {
+        throw new Error('Account is not active');
+      }
+
+      // Get user's role information
+      const roles = await apiRequest('/roles');
+      const userRole = roles.find(r => r.id === user.role_id);
+
+      // Get user's permissions
+      const rolePermissions = await apiRequest('/role_permissions');
+      const permissions = await apiRequest('/permissions');
+
+      const userPermissions = rolePermissions
+        .filter(rp => rp.role_id === user.role_id)
+        .map(rp => permissions.find(p => p.id === rp.permission_id))
+        .filter(Boolean);
+
+      // Return user data with role and permissions
+      return {
+        ...user,
+        role: userRole?.name?.toLowerCase().replace(' ', '_') || 'unknown',
+        role_name: userRole?.name || 'Unknown',
+        permissions: userPermissions
+      };
+    } catch (error) {
+      console.error('Authentication API error:', error);
+      throw error;
+    }
+  },
+
+  // Get user by ID (for token validation)
+  getUser: (id) => apiRequest(`/users/${id}`),
+
+  // Update user's last login
+  updateLastLogin: async (id) => {
+    try {
+      // First get the current user data
+      const user = await apiRequest(`/users/${id}`);
+
+      // Update with new last_login timestamp
+      return apiRequest(`/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          ...user,
+          last_login: new Date().toISOString()
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to update last login:', error);
+      // Don't throw error for last login update failure - it's not critical
+      return null;
+    }
+  },
 };
 
 /**

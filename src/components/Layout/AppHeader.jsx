@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   MenuIcon,
   BellIcon,
@@ -17,7 +18,9 @@ const AppHeader = () => {
   const { toggleMobileSidebar, toggleSidebar } = useSidebar();
   const { toggleTheme } = useTheme();
   const { currentCurrency, currencies, switchCurrency } = useCurrency();
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
@@ -44,6 +47,12 @@ const AppHeader = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-green-200 z-99999 dark:border-blue-400 dark:bg-gray-900 lg:border-b">
@@ -152,11 +161,11 @@ const AppHeader = () => {
             </button>
 
             {/* User Dropdown - Compact mobile design */}
-            {showUserDropdown && (
-              <div className="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
-                <div className="px-3 py-2 border-b border-green-200 dark:border-green-700">
-                  <p className="text-xs font-medium text-gray-900 dark:text-white truncate">Admin User</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">admin@example.com</p>
+            {showUserDropdown && user && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="px-3 py-2 border-b border-green-200 dark:border-blue-400">
+                  <p className="text-xs font-medium text-gray-900 dark:text-white truncate">{user.username}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize truncate">{user.role.replace('_', ' ')}</p>
                 </div>
                 <div>
                   <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
@@ -165,9 +174,12 @@ const AppHeader = () => {
                   <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
                     Settings
                   </a>
-                  <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                  >
                     Sign out
-                  </a>
+                  </button>
                 </div>
               </div>
             )}

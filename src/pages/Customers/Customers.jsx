@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useAuth, PERMISSIONS } from '../../contexts/AuthContext';
 import { UsersIcon, SearchIcon, ChevronDownIcon, PencilIcon, TrashIcon } from '../../icons';
 import { Filter } from 'lucide-react';
 import { AddCustomerModal, EditCustomerModal, DeleteCustomerModal } from '../../components/modals/customers';
 import { useCustomers } from '../../hooks/useCustomers';
+import { AddButton, EditButton, DeleteButton } from '../../components/ui/PermissionButton';
 
 const Customers = () => {
   const { formatAmount } = useCurrency();
+  const { isSales } = useAuth();
   const {
     customers,
     loading,
@@ -136,6 +139,7 @@ const Customers = () => {
 
   return (
     <div className="space-y-4">
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
         <div>
@@ -147,14 +151,15 @@ const Customers = () => {
           </p>
           
         </div>
-        <button
+        <AddButton
+          permission={PERMISSIONS.CUSTOMER_CREATE}
           onClick={() => setIsModalOpen(true)}
           disabled={loading || isAdding}
-          className="inline-flex items-center justify-center px-2 py-1 bg-blue-400 hover:bg-blue-500/50 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 h-9 text-xs shadow-theme-xs"
+          className="px-2 py-1 h-9 text-xs shadow-theme-xs"
         >
-          <UsersIcon className="w-4 h-4 mr-2 dark:text-white" />
+          <UsersIcon className="w-4 h-4 mr-2" />
           {isAdding ? 'Adding...' : 'Add Customer'}
-        </button>
+        </AddButton>
       </div>
 
       {/* Error Message */}
@@ -318,8 +323,8 @@ const Customers = () => {
       {/* Responsive Customer List */}
       {!loading && (
       <div className="overflow-hidden rounded-xl border border-green-200 bg-white dark:border-blue-400 dark:bg-white/[0.03]">
-        <div className="max-w-full overflow-x-auto">
-          <table className="min-w-full border-collapse">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-collapse">
             {/* Table Header - Responsive columns */}
             <thead className="border-b border-green-200 dark:border-blue-400">
               <tr>
@@ -351,10 +356,12 @@ const Customers = () => {
                 <th className="hidden sm:table-cell pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
                   Date
                 </th>
-                {/* Actions - always visible */}
-                <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
-                  Actions
-                </th>
+                {/* Actions - hidden for Sales role */}
+                {!isSales() && (
+                  <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
 
@@ -443,27 +450,35 @@ const Customers = () => {
                     })}
                   </td>
 
-                  {/* Actions - always visible, mobile-optimized with icons */}
-                  <td className="pr-1 pl-1 py-2 text-center">
-                    <div className="flex justify-center space-x-1">
-                      <button
-                        onClick={() => handleEditCustomer(customer)}
-                        disabled={isUpdating || isDeleting}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 disabled:text-gray-400 disabled:cursor-not-allowed p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
-                        title="Edit Customer"
-                      >
-                        <PencilIcon className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCustomer(customer)}
-                        disabled={isUpdating || isDeleting}
-                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:text-gray-400 disabled:cursor-not-allowed p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                        title="Delete Customer"
-                      >
-                        <TrashIcon className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
+                  {/* Actions - hidden for Sales role */}
+                  {!isSales() && (
+                    <td className="pr-1 pl-1 py-2 text-center">
+                      <div className="flex justify-center space-x-1">
+                        <EditButton
+                          permission={PERMISSIONS.CUSTOMER_UPDATE}
+                          onClick={() => handleEditCustomer(customer)}
+                          disabled={isUpdating || isDeleting}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 disabled:text-gray-400 disabled:cursor-not-allowed p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                          variant="ghost"
+                          size="sm"
+                          title="Edit Customer"
+                        >
+                          <PencilIcon className="w-3.5 h-3.5" />
+                        </EditButton>
+                        <DeleteButton
+                          permission={PERMISSIONS.CUSTOMER_DELETE}
+                          onClick={() => handleDeleteCustomer(customer)}
+                          disabled={isUpdating || isDeleting}
+                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:text-gray-400 disabled:cursor-not-allowed p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          variant="ghost"
+                          size="sm"
+                          title="Delete Customer"
+                        >
+                          <TrashIcon className="w-3.5 h-3.5" />
+                        </DeleteButton>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

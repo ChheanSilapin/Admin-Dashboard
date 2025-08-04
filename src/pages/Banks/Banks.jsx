@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BankIcon, PencilIcon, TrashIcon, EyeIcon } from '../../icons';
+import { useAuth, PERMISSIONS } from '../../contexts/AuthContext';
+import { AddButton, EditButton, DeleteButton } from '../../components/ui/PermissionButton';
+import PermissionWrapper from '../../components/ui/PermissionWrapper';
 
 const Banks = () => {
+  const { isSales } = useAuth();
+
   // Mock data for banks
   const [banks] = useState([
     {
@@ -51,6 +56,7 @@ const Banks = () => {
 
   return (
     <div className="space-y-6">
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -60,13 +66,15 @@ const Banks = () => {
             Manage banking partners and institutions
           </p>
         </div>
-        <Link
-          to="/banks/add"
-          className="inline-flex items-center px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors duration-200"
-        >
-          <BankIcon className="w-5 h-5 mr-2" />
-          Add Bank
-        </Link>
+        <PermissionWrapper permission={PERMISSIONS.BANK_CREATE}>
+          <Link
+            to="/banks/add"
+            className="inline-flex items-center px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            <BankIcon className="w-5 h-5 mr-2" />
+            Add Bank
+          </Link>
+        </PermissionWrapper>
       </div>
 
       {/* Banks Grid */}
@@ -109,25 +117,34 @@ const Banks = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                {/* View button - always visible for all roles */}
                 <button
                   className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                   title="View Details"
                 >
                   <EyeIcon className="w-4 h-4" />
                 </button>
-                <button
+
+                {/* Edit button - permission-based */}
+                <EditButton
+                  permission={PERMISSIONS.BANK_UPDATE}
                   className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200"
                   title="Edit Bank"
+                  showTooltip={isSales()}
                 >
                   <PencilIcon className="w-4 h-4" />
-                </button>
-                <button
+                </EditButton>
+
+                {/* Delete button - permission-based */}
+                <DeleteButton
+                  permission={PERMISSIONS.BANK_DELETE}
                   onClick={() => handleDelete(bank.id)}
                   className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
                   title="Delete Bank"
+                  showTooltip={isSales()}
                 >
                   <TrashIcon className="w-4 h-4" />
-                </button>
+                </DeleteButton>
               </div>
             </div>
 

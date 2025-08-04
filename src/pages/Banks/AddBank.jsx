@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BankIcon, PhotoIcon } from '../../icons';
+import { useAuth, PERMISSIONS } from '../../contexts/AuthContext';
+import PermissionWrapper from '../../components/ui/PermissionWrapper';
+import { SaveButton } from '../../components/ui/PermissionButton';
 
 const AddBank = () => {
   const [formData, setFormData] = useState({
@@ -42,7 +45,12 @@ const AddBank = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PermissionWrapper
+      permission={PERMISSIONS.BANK_CREATE}
+      fallbackType="message"
+      showFallback={true}
+    >
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -142,16 +150,18 @@ const AddBank = () => {
             >
               Cancel
             </Link>
-            <button
+            <SaveButton
+              permission={PERMISSIONS.BANK_CREATE}
               type="submit"
               className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors duration-200"
             >
               Add Bank
-            </button>
+            </SaveButton>
           </div>
         </form>
       </div>
     </div>
+    </PermissionWrapper>
   );
 };
 

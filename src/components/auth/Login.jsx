@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeftIcon, EyeIcon, EyeOffIcon } from '../../icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +12,27 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { login, isAuthenticated, isLoading, error } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
+
+  // Clear local errors when auth error changes
+  useEffect(() => {
+    if (error) {
+      setErrors({ general: error });
+    } else {
+      setErrors(prev => ({ ...prev, general: '' }));
+    }
+  }, [error]);
 
   // Form validation
   const validateForm = () => {
@@ -63,23 +83,22 @@ const Login = () => {
       return;
     }
 
-    setIsLoading(true);
+    // Clear any existing errors
+    setErrors({});
 
     try {
-      // TODO: Replace with actual authentication API call
-      console.log('Login attempt:', { ...formData, rememberMe });
+      const result = await login(formData.username, formData.password, rememberMe);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // TODO: Handle successful login (redirect, store token, etc.)
-      alert('Login successful! (This is a demo)');
-
+      if (result.success) {
+        // Navigation is handled by the useEffect hook above
+        console.log('Login successful:', result.user);
+      } else {
+        // Error is handled by the useEffect hook that watches auth.error
+        console.error('Login failed:', result.error);
+      }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Login failed. Please check your credentials and try again.' });
-    } finally {
-      setIsLoading(false);
+      setErrors({ general: 'An unexpected error occurred. Please try again.' });
     }
   };
 
@@ -111,6 +130,9 @@ const Login = () => {
                   Enter your username and password to sign in!
                 </p>
               </div>
+
+              {/* Demo Credentials */}
+              
 
               {/* General Error Message */}
               {errors.general && (
@@ -244,7 +266,8 @@ const Login = () => {
                 </div>
               </form>
 
-              
+              {/* Quick Login Buttons for Demo */}
+
             </div>
           </div>
         </div>
@@ -269,9 +292,10 @@ const Login = () => {
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Admin Dashboard</h2>
-              <p className="text-center text-gray-300 dark:text-white/60">
+              <p className="text-center text-gray-300 dark:text-white/60 mb-4">
                 Secure access to your admin panel with role-based authentication and customer management
               </p>
+            
             </div>
           </div>
         </div>

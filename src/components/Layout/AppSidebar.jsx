@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../contexts/SidebarContext';
+import { useAuth, PERMISSIONS } from '../../contexts/AuthContext';
 import {
   GridIcon,
   UserCircleIcon,
@@ -13,65 +14,108 @@ import {
   HorizontalDotsIcon,
 } from '../../icons';
 
-// Main navigation items
+
 const navItems = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
     path: "/",
+    permission: PERMISSIONS.DASHBOARD_VIEW,
   },
   {
     icon: <UsersIcon />,
     name: "Customer",
     path: "/customers",
+    permission: PERMISSIONS.CUSTOMER_VIEW,
   },
   {
     icon: <BankIcon />,
     name: "Bank",
+    permission: PERMISSIONS.BANK_VIEW,
     subItems: [
-      { name: "All Banks", path: "/banks" },
-      { name: "Add Bank", path: "/banks/add" },
+      {
+        name: "All Banks",
+        path: "/banks",
+        permission: PERMISSIONS.BANK_VIEW,
+      },
+      {
+        name: "Add Bank",
+        path: "/banks/add",
+        permission: PERMISSIONS.BANK_CREATE,
+      },
     ],
   },
 ];
 
-// Administration items
 const adminItems = [
   {
     icon: <ShieldIcon />,
     name: "Roles",
+    permission: PERMISSIONS.ROLES_VIEW,
     subItems: [
-      { name: "All Roles", path: "/roles" },
-      { name: "Add Role", path: "/roles/add" },
+      {
+        name: "All Roles",
+        path: "/roles",
+        permission: PERMISSIONS.ROLES_VIEW,
+      },
+      {
+        name: "Add Role",
+        path: "/roles/add",
+        permission: PERMISSIONS.ROLES_CREATE,
+      },
     ],
   },
   {
     icon: <KeyIcon />,
     name: "Permissions",
+    permission: PERMISSIONS.PERMISSIONS_VIEW,
     subItems: [
-      { name: "All Permissions", path: "/permissions" },
-      { name: "Add Permission", path: "/permissions/add" },
+      {
+        name: "All Permissions",
+        path: "/permissions",
+        permission: PERMISSIONS.PERMISSIONS_VIEW,
+      },
+      {
+        name: "Add Permission",
+        path: "/permissions/add",
+        permission: PERMISSIONS.PERMISSIONS_CREATE,
+      },
     ],
   },
   {
     icon: <CogIcon />,
     name: "Role Permissions",
+    permission: PERMISSIONS.ROLE_PERMISSIONS_VIEW,
     subItems: [
-      { name: "Manage Assignments", path: "/role-permissions" },
+      {
+        name: "Manage Assignments",
+        path: "/role-permissions",
+        permission: PERMISSIONS.ROLE_PERMISSIONS_VIEW,
+      },
     ],
   },
   {
     icon: <UserCircleIcon />,
     name: "Authentication",
+    permission: PERMISSIONS.USERS_VIEW,
     subItems: [
-      { name: "Users", path: "/users" },
-      { name: "Login Settings", path: "/auth/settings" },
+      {
+        name: "Users",
+        path: "/users",
+        permission: PERMISSIONS.USERS_VIEW,
+      },
+      {
+        name: "Login Settings",
+        path: "/auth/settings",
+        permission: PERMISSIONS.USERS_VIEW,
+      },
     ],
   },
 ];
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { hasPermission, canAccessAdministration, user, isAuthenticated } = useAuth();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -132,9 +176,52 @@ const AppSidebar = () => {
     });
   };
 
-  const renderMenuItems = (items, menuType) => (
-    <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
+  // Filter menu items based on user permissions
+  const filterMenuItems = (items) => {
+    if (!isAuthenticated) return [];
+
+    return items.filter(item => {
+      // Check if user has permission for the main item
+      if (item.permission && !hasPermission(item.permission)) {
+        return false;
+      }
+
+      // If item has subItems, filter them too
+      if (item.subItems) {
+        const filteredSubItems = item.subItems.filter(subItem => {
+          return !subItem.permission || hasPermission(subItem.permission);
+        });
+
+        // Only show parent item if it has accessible sub-items or no permission requirement
+        return filteredSubItems.length > 0 || !item.permission;
+      }
+
+      return true;
+    }).map(item => {
+      // Return item with filtered subItems if applicable
+      if (item.subItems) {
+        return {
+          ...item,
+          subItems: item.subItems.filter(subItem => {
+            return !subItem.permission || hasPermission(subItem.permission);
+          })
+        };
+      }
+      return item;
+    });
+  };
+
+  // Remove read-only indicators from sidebar - they're not needed
+  const isReadOnlyItem = (item) => {
+    return false; // Always return false to remove "View Only" badges
+  };
+
+  const renderMenuItems = (items, menuType) => {
+    const filteredItems = filterMenuItems(items);
+
+    return (
+      <ul className="flex flex-col gap-4">
+        {filteredItems.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
             <button
@@ -159,7 +246,14 @@ const AppSidebar = () => {
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className="menu-item-text">{nav.name}</span>
+                <span className="menu-item-text flex items-center gap-2">
+                  {nav.name}
+                  {isReadOnlyItem(nav) && (
+                    <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded">
+                      View Only
+                    </span>
+                  )}
+                </span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -190,7 +284,14 @@ const AppSidebar = () => {
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">{nav.name}</span>
+                  <span className="menu-item-text flex items-center gap-2">
+                    {nav.name}
+                    {isReadOnlyItem(nav) && (
+                      <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded">
+                        View Only
+                      </span>
+                    )}
+                  </span>
                 )}
               </Link>
             )
@@ -227,9 +328,10 @@ const AppSidebar = () => {
             </div>
           )}
         </li>
-      ))}
-    </ul>
-  );
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <aside
@@ -287,25 +389,58 @@ const AppSidebar = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            {/* Admin Menu */}
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Administration"
-                ) : (
-                  <HorizontalDotsIcon />
-                )}
-              </h2>
-              {renderMenuItems(adminItems, "admin")}
-            </div>
+            {/* Admin Menu - Only show if user has administration access */}
+            {canAccessAdministration() && (
+              <div>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "Administration"
+                  ) : (
+                    <HorizontalDotsIcon />
+                  )}
+                </h2>
+                {renderMenuItems(adminItems, "admin")}
+              </div>
+            )}
           </div>
         </nav>
+
+        {/* User Info Section */}
+        {isAuthenticated && user && (
+          <div className="mt-auto mb-6 px-2">
+            <div className={`p-3 bg-gray-50 dark:bg-gray-800 rounded-lg ${
+              !isExpanded && !isHovered ? "lg:px-2" : ""
+            }`}>
+              {isExpanded || isHovered || isMobileOpen ? (
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {user.username}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                      {user.role.replace('_', ' ')}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );
