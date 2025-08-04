@@ -80,7 +80,8 @@ const AddCustomerModal = ({
         className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
         onClick={onClose}
       ></div>
-      <div className="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-gray-900 shadow-theme-xl max-h-[95vh] overflow-y-auto mx-4">
+      {/* Mobile-optimized modal sizing */}
+      <div className="relative w-full max-w-sm sm:max-w-2xl rounded-3xl bg-white dark:bg-gray-900 shadow-theme-xl max-h-[95vh] overflow-y-auto mx-2 sm:mx-4">
         <button
           onClick={onClose}
           className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
@@ -88,7 +89,7 @@ const AddCustomerModal = ({
           <XIcon className="w-5 h-5" />
         </button>
 
-        <div className="px-6 pb-6 pt-6 sm:px-8 sm:pb-8 sm:pt-8">
+        <div className="px-4 pb-4 pt-4 sm:px-6 sm:pb-6 sm:pt-6 md:px-8 md:pb-8 md:pt-8">
           <div className="mb-6">
             <h4 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Add New Customer Info
@@ -114,19 +115,19 @@ const AddCustomerModal = ({
             onSubmit={handleSubmit}
           />
 
-          {/* Form Actions */}
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 mt-6">
+          {/* Form Actions - Mobile-optimized */}
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 mt-4 sm:mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center justify-center gap-2 rounded-md transition px-3 py-2 text-sm bg-white text-[var(--color-white-100)] ring-1 ring-inset ring-red-300 hover:bg-gray-50 dark:bg-red-600 dark:text-[var(--color-white-100)] dark:ring-red-700 dark:hover:bg-red-700 dark:hover:text-gray-300"
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-3 py-2.5 text-sm bg-white text-[var(--color-white-100)] ring-1 ring-inset ring-red-300 hover:bg-gray-50 dark:bg-red-600 dark:text-[var(--color-white-100)] dark:ring-red-700 dark:hover:bg-red-700 dark:hover:text-gray-300 w-full sm:w-auto"
             >
               Close
             </button>
             <button
               type="submit"
               form="customer-form"
-              className="inline-flex items-center justify-center gap-2 rounded-md transition px-4 py-2 text-sm bg-blue-400 text-[var(--color-white-100)] shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
+              className="inline-flex items-center justify-center gap-2 rounded-md transition px-4 py-2.5 text-sm bg-blue-400 text-[var(--color-white-100)] shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 w-full sm:w-auto"
             >
               Add Customer Info
             </button>

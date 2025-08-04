@@ -157,7 +157,7 @@ const MetricsCards = () => {
         {[...Array(4)].map((_, index) => (
           <div
             key={index}
-            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-6 animate-pulse"
+            className="rounded-2xl border border-green-200 bg-white p-5 shadow-theme-sm dark:border-blue-400 dark:bg-white/[0.03] md:p-6 animate-pulse"
           >
             <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl mb-5"></div>
             <div className="space-y-3">
@@ -184,17 +184,17 @@ const MetricsCards = () => {
       {metrics.map((metric, index) => (
         <div
           key={index}
-          className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-6"
+          className="rounded-2xl border border-green-200 bg-white p-5 shadow-theme-sm dark:border-blue-400 dark:bg-white/[0.03] md:p-6"
         >
-          <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-            <div className="text-gray-800 dark:text-white/90">
+          <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800 border border-green-200 dark:border-blue-400">
+            <div className="text-green-400 dark:text-blue-400">
               {metric.icon}
             </div>
           </div>
 
           <div className="mt-5">
             <div className="mb-3">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-500 dark:text-white">
                 {metric.title}
               </span>
               <h4 className="mt-1 font-bold text-gray-800 text-title-sm dark:text-white/90">

@@ -10,7 +10,6 @@ import {
   SunIcon,
   MoonIcon,
   UserCircleIcon,
-  CurrencyDollarIcon,
   ChevronDownIcon
 } from '../../icons';
 
@@ -89,14 +88,14 @@ const AppHeader = () => {
                 onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
                 className="h-10 px-4 py-2 rounded-lg text-sm font-medium shadow-theme-xs bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 focus:border-green-300 focus:outline-none focus:ring-2 focus:ring-green-200 transition-colors duration-200 cursor-pointer flex items-center gap-2"
               >
-                <span className="text-green-400 font-medium">{currencies[currentCurrency]?.symbol || '$'}</span>
+                <span className="text-green-400 dark:text-blue-400 font-medium">{currencies[currentCurrency]?.symbol || '$'}</span>
                 <span>{currentCurrency}</span>
                 <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${showCurrencyDropdown ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Currency Dropdown - Responsive positioning */}
+              {/* Currency Dropdown - Fixed positioning */}
               {showCurrencyDropdown && (
-                <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
                   {Object.values(currencies).map((currency) => (
                     <button
                       key={currency.code}
@@ -111,7 +110,7 @@ const AppHeader = () => {
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-green-400">{currency.symbol}</span>
+                        <span className="text-green-400 dark:text-blue-400">{currency.symbol}</span>
                         <span>{currency.code}</span>
                       </div>
                       {currentCurrency === currency.code && (
@@ -130,7 +129,7 @@ const AppHeader = () => {
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-green-50 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-400 dark:hover:bg-green-800 dark:hover:text-white"
+              className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-green-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-green-50 dark:border-blue-400 dark:bg-gray-900 dark:text-blue-400 dark:hover:bg-green-800 dark:hover:text-white"
             >
               <SunIcon className="hidden dark:block w-5 h-5" />
               <MoonIcon className="block dark:hidden w-5 h-5" />
@@ -152,21 +151,21 @@ const AppHeader = () => {
               <UserCircleIcon className="w-5 h-5 text-green-400" />
             </button>
 
-            {/* User Dropdown - Responsive positioning */}
+            {/* User Dropdown - Compact mobile design */}
             {showUserDropdown && (
-              <div className="absolute top-full right-0 md:right-0 left-0 md:left-auto mt-2 w-48 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
-                <div className="px-4 py-3 border-b border-green-200 dark:border-green-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">admin@example.com</p>
+              <div className="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 border border-green-200 dark:border-blue-400 rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="px-3 py-2 border-b border-green-200 dark:border-green-700">
+                  <p className="text-xs font-medium text-gray-900 dark:text-white truncate">Admin User</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">admin@example.com</p>
                 </div>
                 <div>
-                  <a href="#" className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+                  <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
                     Profile
                   </a>
-                  <a href="#" className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+                  <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
                     Settings
                   </a>
-                  <a href="#" className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
+                  <a href="#" className="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-800 transition-colors">
                     Sign out
                   </a>
                 </div>

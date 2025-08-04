@@ -91,7 +91,7 @@ const SystemOverview = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-green-200 bg-white p-5 shadow-theme-sm dark:border-blue-400 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -103,7 +103,7 @@ const SystemOverview = () => {
           </div>
         </div>
         <div className="h-56 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+        <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-green-200 dark:border-blue-400">
           {[...Array(3)].map((_, index) => (
             <div key={index} className="space-y-2">
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>

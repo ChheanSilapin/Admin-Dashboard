@@ -78,7 +78,7 @@ const RecentActivity = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+      <div className="rounded-2xl border border-green-200 bg-white p-5 dark:border-blue-400 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -114,7 +114,7 @@ const RecentActivity = () => {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+    <div className="rounded-2xl border border-green-200 bg-white p-5 dark:border-blue-400 dark:bg-white/[0.03] md:p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -157,8 +157,8 @@ const RecentActivity = () => {
         ))}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <button className="w-full text-center text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium py-2">
+      <div className="mt-6 pt-4 border-t border-green-200 dark:border-blue-400">
+        <button className="w-full text-center text-sm text-brand-600 dark:text-white hover:text-brand-700 dark:hover:text-brand-300 font-medium py-2">
           Load More Activities
         </button>
       </div>

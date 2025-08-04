@@ -27,7 +27,7 @@ const QuickActions = () => {
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+    <div className="rounded-2xl border border-green-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Quick Actions
@@ -41,7 +41,7 @@ const QuickActions = () => {
           {actions.map((action, index) => (
             <div
               key={index}
-              className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 hover:shadow-md transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600"
+              className="border border-green-200 dark:border-gray-700 rounded-xl p-3 hover:shadow-md transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600"
             >
               <div className="flex items-start space-x-3">
                 <div className={`p-3 rounded-xl ${action.iconBg} flex-shrink-0`}>
