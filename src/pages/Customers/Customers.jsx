@@ -329,36 +329,36 @@ const Customers = () => {
             <thead className="border-b border-green-200 dark:border-blue-400">
               <tr>
                 {/* Row number - always visible */}
-                <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
                   #
                 </th>
                 {/* Customer - always visible */}
-                <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
                   Customer
                 </th>
                 {/* Transaction - always visible */}
-                <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
                   Transaction
                 </th>
                 {/* Bank - hidden on mobile */}
-                <th className="hidden md:table-cell pr-1 pl-1 py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                <th className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
                   Bank
                 </th>
                 {/* Amount - always visible */}
-                <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
                   Amount
                 </th>
                 {/* Credit - hidden on mobile */}
-                <th className="hidden lg:table-cell pr-1 pl-1 py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
+                <th className="hidden lg:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
                   Credit
                 </th>
                 {/* Date - hidden on mobile */}
-                <th className="hidden sm:table-cell pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                <th className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
                   Date
                 </th>
                 {/* Actions - hidden for Sales role */}
                 {!isSales() && (
-                  <th className="pr-1 pl-1 py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                  <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
                     Actions
                   </th>
                 )}
@@ -370,14 +370,14 @@ const Customers = () => {
               {filteredCustomers.map((customer, index) => (
                 <tr key={`${customer.CustomerId}-${index}`} className="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
                   {/* Row Number - always visible */}
-                  <td className="pr-1 pl-1 py-2 text-center">
+                  <td className="px-0.5 py-1 md:px-1 md:py-2 text-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                       {index + 1}
                     </span>
                   </td>
 
                   {/* Customer Info - always visible, enhanced for mobile */}
-                  <td className="pr-1 pl-1 py-2">
+                  <td className="px-0.5 py-1 md:px-1 md:py-2">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
@@ -396,7 +396,7 @@ const Customers = () => {
                   </td>
 
                   {/* Transaction Info - always visible, enhanced for mobile */}
-                  <td className="pr-1 pl-1 py-2 text-center">
+                  <td className="px-0.5 py-1 md:px-1 md:py-2 text-center">
                     <div className="space-y-1">
                       <span
                         className={`inline-flex px-1.5 py-0.5 text-xs font-medium rounded-full ${
@@ -415,7 +415,7 @@ const Customers = () => {
                   </td>
 
                   {/* Bank Info - hidden on mobile */}
-                  <td className="hidden md:table-cell pr-1 pl-1 py-2 text-gray-500 text-start text-xs dark:text-gray-400">
+                  <td className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 text-gray-500 text-start text-xs dark:text-gray-400">
                     <div>
                       <div className="font-medium text-gray-800 dark:text-white/90">{customer.bank_name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">{customer.bank_code}</div>
@@ -423,7 +423,7 @@ const Customers = () => {
                   </td>
 
                   {/* Amount - always visible, enhanced for mobile */}
-                  <td className="pr-1 pl-1 py-2 text-end text-gray-500 text-xs dark:text-gray-400">
+                  <td className="px-0.5 py-1 md:px-1 md:py-2 text-end text-gray-500 text-xs dark:text-gray-400">
                     <div className="space-y-1">
                       <span className="block font-medium text-gray-800 dark:text-white/90">
                         {formatAmount(customer.amount, customer.currency)}
@@ -436,14 +436,14 @@ const Customers = () => {
                   </td>
 
                   {/* Credit - hidden on mobile */}
-                  <td className="hidden lg:table-cell pr-1 pl-1 py-2 text-end text-gray-500 text-xs dark:text-gray-400">
+                  <td className="hidden lg:table-cell px-0.5 py-1 md:px-1 md:py-2 text-end text-gray-500 text-xs dark:text-gray-400">
                     <span className="font-medium text-gray-800 dark:text-white/90">
                       {customer.Credit.toLocaleString()}
                     </span>
                   </td>
 
                   {/* Created Date - hidden on mobile */}
-                  <td className="hidden sm:table-cell pr-1 pl-1 py-2 text-center text-gray-500 text-xs dark:text-gray-400">
+                  <td className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 text-center text-gray-500 text-xs dark:text-gray-400">
                     {new Date(customer.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric'
@@ -452,7 +452,7 @@ const Customers = () => {
 
                   {/* Actions - hidden for Sales role */}
                   {!isSales() && (
-                    <td className="pr-1 pl-1 py-2 text-center">
+                    <td className="px-0.5 py-1 md:px-1 md:py-2 text-center">
                       <div className="flex justify-center space-x-1">
                         <EditButton
                           permission={PERMISSIONS.CUSTOMER_UPDATE}

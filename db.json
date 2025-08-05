@@ -26,7 +26,7 @@
     {
       "id": "1",
       "CustomerId": "CUST-001",
-      "Type": "Deposit",
+      "Type": "Withdrawal",
       "currency": "USD",
       "Credit": 15000,
       "amount": 15000,
@@ -45,7 +45,7 @@
     {
       "id": "2",
       "CustomerId": "CUST-002",
-      "Type": "Deposit",
+      "Type": "Withdrawal",
       "currency": "USD",
       "Credit": 10000,
       "amount": 1500,
