@@ -1,79 +1,39 @@
 import { useState, useEffect } from 'react';
+import { bankAPI } from '../services/api';
+
+/**
+ * Utility function to handle API response data extraction
+ */
+const extractBankData = (response) => {
+  const bankData = response.data || response;
+  return Array.isArray(bankData) ? bankData : [];
+};
 
 /**
  * Custom hook to manage bank data for customer forms
- * Provides bank data from the existing Banks page structure
+ * Provides bank data from the Laravel API
  */
 export const useBanks = () => {
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Mock bank data - in a real app, this would come from an API
-  const mockBanks = [
-    {
-      id: 1,
-      bank_name: 'ABA Bank',
-      bank_code: 'ABA001',
-      icon_logo: '/images/banks/aba-bank.png',
-      created_at: '2024-01-15',
-      status: 'Active',
-      total_customers: 1250,
-      total_transactions: 5680,
-    },
-    {
-      id: 2,
-      bank_name: 'ACLEDA Bank',
-      bank_code: 'ACL002',
-      icon_logo: '/images/banks/acleda-bank.png',
-      created_at: '2024-01-20',
-      status: 'Active',
-      total_customers: 980,
-      total_transactions: 4320,
-    },
-    {
-      id: 3,
-      bank_name: 'Canadia Bank',
-      bank_code: 'CAN003',
-      icon_logo: '/images/banks/canadia-bank.png',
-      created_at: '2024-02-01',
-      status: 'Active',
-      total_customers: 756,
-      total_transactions: 3210,
-    },
-    {
-      id: 4,
-      bank_name: 'Wing Bank',
-      bank_code: 'WNG004',
-      icon_logo: '/images/banks/wing-bank.png',
-      created_at: '2024-02-10',
-      status: 'Pending',
-      total_customers: 0,
-      total_transactions: 0,
-    },
-  ];
+  const fetchBanks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await bankAPI.getAll();
+      setBanks(extractBankData(response));
+    } catch (err) {
+      setError('Failed to fetch banks');
+      // Fallback to empty array on error
+      setBanks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate API call
-    const fetchBanks = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Filter only active banks for customer forms
-        const activeBanks = mockBanks.filter(bank => bank.status === 'Active');
-        setBanks(activeBanks);
-      } catch (err) {
-        setError('Failed to fetch banks');
-        console.error('Error fetching banks:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBanks();
   }, []);
 
@@ -95,7 +55,7 @@ export const useBanks = () => {
       value: bank.id,
       label: bank.bank_name,
       bank_code: bank.bank_code,
-      icon_logo: bank.icon_logo
+      icon_logo: bank.logo
     }));
   };
 
@@ -115,11 +75,86 @@ export const useBanks = () => {
     getBankById,
     getBankOptions,
     isValidBankId,
-    refetch: () => {
-      // Re-trigger the useEffect
-      setBanks([]);
+    refetch: fetchBanks
+  };
+};
+
+/**
+ * Custom hook to manage bank data with CRUD operations
+ * Provides comprehensive bank management functionality using Laravel API
+ */
+export const useBankManagement = () => {
+  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchBanks = async () => {
+    try {
       setLoading(true);
+      setError(null);
+      const response = await bankAPI.getAll();
+      setBanks(extractBankData(response));
+    } catch (err) {
+      setError('Failed to fetch banks');
+      // Only clear banks if we don't have any existing data
+      setBanks(prev => prev.length > 0 ? prev : []);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchBanks();
+  }, []);
+
+  const addBank = async (bankData) => {
+    try {
+      setError(null);
+      const response = await bankAPI.create(bankData);
+      const bankToAdd = response.data || response;
+      setBanks(prev => [...prev, bankToAdd]);
+      return bankToAdd;
+    } catch (err) {
+      setError('Failed to add bank');
+      throw err;
+    }
+  };
+
+  const updateBank = async (id, bankData) => {
+    try {
+      setError(null);
+      const response = await bankAPI.update(id, bankData);
+      const bankToUpdate = response.data || response;
+      setBanks(prev => prev.map(bank =>
+        bank.id === id ? { ...bank, ...bankToUpdate } : bank
+      ));
+      return bankToUpdate;
+    } catch (err) {
+      setError('Failed to update bank');
+      throw err;
+    }
+  };
+
+  const deleteBank = async (id) => {
+    try {
+      setError(null);
+      await bankAPI.delete(id);
+      setBanks(prev => prev.filter(bank => bank.id !== id));
+      return true;
+    } catch (err) {
+      setError('Failed to delete bank');
+      throw err;
+    }
+  };
+
+  return {
+    banks,
+    loading,
+    error,
+    addBank,
+    updateBank,
+    deleteBank,
+    refetch: fetchBanks
   };
 };
 

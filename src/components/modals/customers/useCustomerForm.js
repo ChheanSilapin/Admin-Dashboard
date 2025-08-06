@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useBanks } from '../../../hooks/useBanks';
 import { formatCurrency } from '../../../utils/currencyFormatter';
+import { customerAPI } from '../../../services/api';
 
 export const useCustomerForm = (initialData = null, customers = []) => {
   const { banks, loading: banksLoading, getBankOptions, getBankById } = useBanks();
@@ -33,6 +34,9 @@ export const useCustomerForm = (initialData = null, customers = []) => {
     bank: false
   });
 
+  // Preview state for customer ID
+  const [customerIdPreview, setCustomerIdPreview] = useState('');
+
   // Initialize form data when initialData changes (for edit mode)
   useEffect(() => {
     if (initialData) {
@@ -53,7 +57,36 @@ export const useCustomerForm = (initialData = null, customers = []) => {
         amount: initialData.amount ? formatCurrency(initialData.amount, initialData.currency || 'USD') : ''
       });
     } else {
-      // Reset form for add mode
+      // Reset form for add mode and auto-generate customer ID
+      generateCustomerId();
+    }
+    setErrors({});
+  }, [initialData]);
+
+  // Auto-generate customer ID for new customers
+  const generateCustomerId = async () => {
+    try {
+      const totalCount = await customerAPI.getTotalCount();
+      const nextId = `CUST-${String(totalCount + 1).padStart(3, '0')}`;
+
+      setFormData({
+        CustomerId: nextId,
+        fullName: '',
+        Type: 'Deposit',
+        currency: 'USD',
+        Credit: '',
+        amount: '',
+        bank_id: '',
+        Note: '',
+      });
+      setDisplayValues({
+        Credit: '',
+        amount: ''
+      });
+      setCustomerIdPreview(nextId);
+    } catch (error) {
+      console.error('Failed to generate customer ID:', error);
+      // Fallback to empty form
       setFormData({
         CustomerId: '',
         fullName: '',
@@ -68,9 +101,9 @@ export const useCustomerForm = (initialData = null, customers = []) => {
         Credit: '',
         amount: ''
       });
+      setCustomerIdPreview('');
     }
-    setErrors({});
-  }, [initialData]);
+  };
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -181,11 +214,10 @@ export const useCustomerForm = (initialData = null, customers = []) => {
     } else if (!isEdit && customers.some(c => c.CustomerId === formData.CustomerId)) {
       newErrors.CustomerId = 'Customer ID must be unique';
     }
+    // Note: In edit mode, customer ID is read-only so no need to validate uniqueness
 
-    // Full Name validation
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    } else if (formData.fullName.trim().length < 2) {
+    // Full Name validation (optional)
+    if (formData.fullName.trim() && formData.fullName.trim().length < 2) {
       newErrors.fullName = 'Full name must be at least 2 characters';
     }
 
@@ -248,20 +280,21 @@ export const useCustomerForm = (initialData = null, customers = []) => {
     displayValues,
     errors,
     dropdowns,
-    
+    customerIdPreview,
+
     // Bank data
     banks,
     banksLoading,
     getBankOptions,
     getBankById,
-    
+
     // Handlers
     handleInputChange,
     handleNumberInput,
     handleCurrencyChange,
     toggleDropdown,
     closeAllDropdowns,
-    
+
     // Validation
     validateForm,
     resetForm

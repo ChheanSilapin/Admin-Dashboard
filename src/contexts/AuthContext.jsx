@@ -1,6 +1,62 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
+/**
+ * Parse permissions from Laravel API into array format expected by UI
+ * @param {string|Array} permissionsData - Comma-separated permissions string or array of permission strings
+ * @returns {Array} - Array of permission objects
+ */
+export const parsePermissions = (permissionsData) => {
+  if (!permissionsData) return [];
+
+  let permissions = [];
+
+  // Handle different formats of permissions data
+  if (typeof permissionsData === 'string') {
+    // If it's a string, split by comma
+    permissions = permissionsData.split(',').map(p => p.trim());
+  } else if (Array.isArray(permissionsData)) {
+    // If it's already an array, use it directly
+    permissions = permissionsData;
+  } else {
+    console.warn('Unexpected permissions format:', permissionsData);
+    return [];
+  }
+
+  return permissions.map(permission => {
+    const trimmedPermission = permission.trim();
+
+    // Handle special cases first
+    if (trimmedPermission === 'assign permissions') {
+      return { category: 'assign_permissions', action: 'read' };
+    }
+
+    // Handle Laravel API format: "view users", "create customers", etc.
+    const parts = trimmedPermission.split(' ');
+    if (parts.length >= 2) {
+      const action = parts[0]; // "view", "create", etc.
+      const category = parts.slice(1).join('_'); // "users", "customers", etc.
+
+      // Map action to standard CRUD operations
+      const actionMap = {
+        'view': 'read',
+        'create': 'create',
+        'update': 'update',
+        'delete': 'delete',
+        'manage': 'read', // Treat "manage" as read permission for now
+        'assign': 'create' // For "assign permissions"
+      };
+
+      const mappedAction = actionMap[action] || action;
+
+      return { category, action: mappedAction };
+    }
+
+    // Fallback for permissions that don't follow the standard format
+    return { category: 'unknown', action: trimmedPermission };
+  });
+};
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -63,19 +119,89 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('auth_token');
         const userData = localStorage.getItem('userData');
-        
+
         if (token && userData) {
           const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
+
+          // Check if token is expired (if expires_in is available)
+          const tokenExpiry = parsedUser.expires_in;
+          const loginTime = parsedUser.login_time || Date.now();
+          const currentTime = Date.now();
+
+          // If token has expiry info and is expired, clear storage
+          if (tokenExpiry && (currentTime - loginTime) > (tokenExpiry * 1000)) {
+            console.warn('Token expired, clearing storage');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('userData');
+            setIsLoading(false);
+            return;
+          }
+
+          // Use stored user data without making API call for better performance
+          // Only validate token if it's been more than 1 hour since last validation
+          const lastValidation = parsedUser.last_validation || 0;
+          const shouldValidate = (currentTime - lastValidation) > (60 * 60 * 1000); // 1 hour
+
+          if (shouldValidate) {
+            try {
+              const currentUser = await authAPI.getUser();
+              if (currentUser) {
+                // Update user data with fresh data from server
+                let roleString = parsedUser.role || 'unknown';
+                let roleName = parsedUser.role_name || 'Unknown';
+
+                if (currentUser.roles) {
+                  if (typeof currentUser.roles === 'string') {
+                    roleString = currentUser.roles.toLowerCase().replace(' ', '_');
+                    roleName = currentUser.roles;
+                  } else if (Array.isArray(currentUser.roles)) {
+                    const firstRole = currentUser.roles[0];
+                    if (typeof firstRole === 'string') {
+                      roleString = firstRole.toLowerCase().replace(' ', '_');
+                      roleName = firstRole;
+                    } else if (firstRole && firstRole.name) {
+                      roleString = firstRole.name.toLowerCase().replace(' ', '_');
+                      roleName = firstRole.name;
+                    }
+                  } else if (currentUser.roles.name) {
+                    roleString = currentUser.roles.name.toLowerCase().replace(' ', '_');
+                    roleName = currentUser.roles.name;
+                  }
+                }
+
+                const updatedUser = {
+                  ...parsedUser,
+                  ...currentUser,
+                  role: roleString,
+                  role_name: roleName,
+                  permissions: parsePermissions(currentUser.permissions) || parsedUser.permissions,
+                  last_validation: currentTime
+                };
+
+                setUser(updatedUser);
+                setIsAuthenticated(true);
+                localStorage.setItem('userData', JSON.stringify(updatedUser));
+              } else {
+                throw new Error('Invalid token');
+              }
+            } catch (tokenError) {
+              console.warn('Token validation failed:', tokenError);
+              localStorage.removeItem('auth_token');
+              localStorage.removeItem('userData');
+            }
+          } else {
+            // Use cached user data without API call
+            setUser(parsedUser);
+            setIsAuthenticated(true);
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('auth_token');
         localStorage.removeItem('userData');
       } finally {
         setIsLoading(false);
@@ -92,25 +218,24 @@ export const AuthProvider = ({ children }) => {
     try {
       const authenticatedUser = await authAPI.login(username, password);
 
-      try {
-        await authAPI.updateLastLogin(authenticatedUser.id);
-      } catch (loginUpdateError) {
-        console.warn('Failed to update last login timestamp:', loginUpdateError);
-        
-      }
-      const token = `auth_token_${authenticatedUser.id}_${Date.now()}`;
+      // Add login time and validation timestamp for better token management
+      const userWithTimestamp = {
+        ...authenticatedUser,
+        login_time: Date.now(),
+        last_validation: Date.now()
+      };
 
+      // Store user data in the appropriate storage
       const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('authToken', token);
-      storage.setItem('userData', JSON.stringify(authenticatedUser));
+      storage.setItem('userData', JSON.stringify(userWithTimestamp));
 
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(authenticatedUser));
+      // Always store in localStorage for consistency (token is already stored by authAPI.login)
+      localStorage.setItem('userData', JSON.stringify(userWithTimestamp));
 
-      setUser(authenticatedUser);
+      setUser(userWithTimestamp);
       setIsAuthenticated(true);
 
-      return { success: true, user: authenticatedUser };
+      return { success: true, user: userWithTimestamp };
     } catch (error) {
       setError(error.message);
       return { success: false, error: error.message };
@@ -119,14 +244,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call the API logout endpoint to invalidate the token on the server
+      await authAPI.logout();
+    } catch (error) {
+      console.warn('Failed to logout from server:', error);
+      // Continue with local logout even if server logout fails
+    }
+
     setUser(null);
     setIsAuthenticated(false);
     setError(null);
-    
-    localStorage.removeItem('authToken');
+
+    // Clear all stored data (authAPI.logout() already clears the token)
     localStorage.removeItem('userData');
-    sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('userData');
   };
 
@@ -146,7 +278,8 @@ export const AuthProvider = ({ children }) => {
     return userPermissions.some(p => {
       // Handle permission objects with category and action fields
       if (p.category && p.action) {
-        return getPermissionConstant(p.category, p.action) === permission;
+        const mappedPermission = getPermissionConstant(p.category, p.action);
+        return mappedPermission === permission;
       }
       return false;
     });
@@ -178,6 +311,19 @@ export const AuthProvider = ({ children }) => {
         update: PERMISSIONS.ROLES_UPDATE,
         delete: PERMISSIONS.ROLES_DELETE,
       },
+      permissions: {
+        create: PERMISSIONS.PERMISSIONS_CREATE,
+        read: PERMISSIONS.PERMISSIONS_VIEW,
+        update: PERMISSIONS.PERMISSIONS_UPDATE,
+        delete: PERMISSIONS.PERMISSIONS_DELETE,
+      },
+      // Handle "assign permissions" as role_permissions
+      'assign_permissions': {
+        read: PERMISSIONS.ROLE_PERMISSIONS_VIEW,
+        create: PERMISSIONS.ROLE_PERMISSIONS_CREATE,
+        update: PERMISSIONS.ROLE_PERMISSIONS_UPDATE,
+        delete: PERMISSIONS.ROLE_PERMISSIONS_DELETE,
+      },
     };
 
     return permissionMap[category]?.[action] || null;
@@ -200,12 +346,14 @@ export const AuthProvider = ({ children }) => {
   const isSales = () => hasRole(ROLES.SALES);
 
   const canAccessAdministration = () => {
-    return hasAnyPermission([
+    const adminPermissions = [
       PERMISSIONS.ROLES_VIEW,
       PERMISSIONS.PERMISSIONS_VIEW,
       PERMISSIONS.ROLE_PERMISSIONS_VIEW,
       PERMISSIONS.USERS_VIEW
-    ]);
+    ];
+
+    return hasAnyPermission(adminPermissions);
   };
 
   const canCreateCustomer = () => hasPermission(PERMISSIONS.CUSTOMER_CREATE);

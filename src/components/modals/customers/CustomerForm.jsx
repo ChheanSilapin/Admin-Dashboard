@@ -15,7 +15,9 @@ const CustomerForm = ({
   handleCurrencyChange,
   toggleDropdown,
   closeAllDropdowns,
-  onSubmit
+  onSubmit,
+  isEditMode = false,
+  customerIdPreview = ''
 }) => {
   // Refs for dropdown management
   const typeDropdownRef = useRef(null);
@@ -55,12 +57,17 @@ const CustomerForm = ({
             value={formData.CustomerId}
             onChange={handleInputChange}
             required
+            readOnly={true}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
-            className={mergeClasses(inputBaseClasses, errors.CustomerId ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : '')}
-            placeholder="CUST-001"
+            className={mergeClasses(
+              inputBaseClasses,
+              errors.CustomerId ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : '',
+              'bg-gray-50 dark:bg-gray-700 cursor-not-allowed'
+            )}
+            placeholder={isEditMode ? formData.CustomerId : customerIdPreview || "Generating..."}
           />
           {errors.CustomerId && (
             <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-red-600 dark:text-red-400">{errors.CustomerId}</p>
@@ -69,17 +76,16 @@ const CustomerForm = ({
 
         <div>
           <label className="mb-1 sm:mb-1.5 block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400">
-            Full Name *
+            Full Name
           </label>
           <input
             type="text"
             name="fullName"
             value={formData.fullName}
             onChange={handleInputChange}
-            required
             autoComplete="off"
             className={mergeClasses(inputBaseClasses, errors.fullName ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : '')}
-            placeholder="Enter customer's full name"
+            placeholder="Enter customer's full name (optional)"
           />
           {errors.fullName && (
             <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-red-600 dark:text-red-400">{errors.fullName}</p>
@@ -111,7 +117,7 @@ const CustomerForm = ({
 
           {dropdowns.Type && (
             <div className="absolute z-50 w-full mt-0.5 sm:mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-32 sm:max-h-40 overflow-y-auto">
-              {['Deposit', 'Withdrawal'].map((type) => (
+              {['Deposit', 'Withdraw'].map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -171,54 +177,25 @@ const CustomerForm = ({
         </div>
       </div>
 
-      {/* Group 3: Financial Information */}
-      <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-3 md:gap-4">
-        {/* Credit Field - Full width on mobile for inline layout */}
-        <div className="sm:col-span-1">
-          {/* Mobile: Inline label and input */}
-          <div className="sm:hidden">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-400 whitespace-nowrap">
-                Credit :
-              </label>
-              <input
-                type="text"
-                name="Credit"
-                value={displayValues.Credit || formData.Credit}
-                onChange={(e) => handleNumberInput(e, 'Credit')}
-                required
-                autoComplete="off"
-                className={mergeClasses(
-                  "flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:border-blue-400 transition-colors",
-                  errors.Credit ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : ''
-                )}
-                placeholder="0"
-              />
-            </div>
-            {errors.Credit && (
-              <p className="mt-0.5 text-xs text-red-600 dark:text-red-400">{errors.Credit}</p>
-            )}
-          </div>
-
-          {/* Desktop: Standard label above input */}
-          <div className="hidden sm:block">
-            <label className="mb-1 sm:mb-1.5 block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400">
-              Credit *
-            </label>
-            <input
-              type="text"
-              name="Credit"
-              value={displayValues.Credit || formData.Credit}
-              onChange={(e) => handleNumberInput(e, 'Credit')}
-              required
-              autoComplete="off"
-              className={mergeClasses(inputBaseClasses, errors.Credit ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : '')}
-              placeholder="0"
-            />
-            {errors.Credit && (
-              <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-red-600 dark:text-red-400">{errors.Credit}</p>
-            )}
-          </div>
+      {/* Group 3: Financial Information - 2-column layout on all screen sizes */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+        <div>
+          <label className="mb-1 sm:mb-1.5 block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400">
+            Credit *
+          </label>
+          <input
+            type="text"
+            name="Credit"
+            value={displayValues.Credit || formData.Credit}
+            onChange={(e) => handleNumberInput(e, 'Credit')}
+            required
+            autoComplete="off"
+            className={mergeClasses(inputBaseClasses, errors.Credit ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : '')}
+            placeholder="0"
+          />
+          {errors.Credit && (
+            <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-red-600 dark:text-red-400">{errors.Credit}</p>
+          )}
         </div>
 
         <div>
@@ -265,20 +242,41 @@ const CustomerForm = ({
         
         {dropdowns.bank && !banksLoading && (
           <div className="absolute z-50 w-full mt-0.5 sm:mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-40 sm:max-h-48 overflow-y-auto">
-            {getBankOptions().map((bank) => (
-              <button
-                key={bank.value}
-                type="button"
-                onClick={() => {
-                  handleInputChange({ target: { name: 'bank_id', value: bank.value } });
-                  toggleDropdown('bank');
-                }}
-                className="w-full px-2 py-1.5 sm:px-3 sm:py-2.5 text-left text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0 first:rounded-t-lg last:rounded-b-lg focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700"
-              >
-                <div className="font-medium">{bank.label}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{bank.bank_code}</div>
-              </button>
-            ))}
+            <div className="grid grid-cols-5 gap-1 p-1.5">
+              {getBankOptions().map((bank) => (
+                <button
+                  key={bank.value}
+                  type="button"
+                  onClick={() => {
+                    handleInputChange({ target: { name: 'bank_id', value: bank.value } });
+                    toggleDropdown('bank');
+                  }}
+                  className="flex flex-col items-center justify-center p-1.5 text-center text-xs hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-md border border-gray-100 dark:border-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 focus:ring-2 focus:ring-blue-500/20 transition-colors min-h-[45px]"
+                  title={`${bank.label} (${bank.bank_code})`}
+                >
+                  {bank.icon_logo ? (
+                    <img
+                      src={bank.icon_logo}
+                      alt={`${bank.label} logo`}
+                      className="w-4 h-4 object-contain mb-1"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="w-4 h-4 bg-gray-100 dark:bg-gray-600 rounded flex items-center justify-center mb-1"
+                    style={{ display: bank.icon_logo ? 'none' : 'flex' }}
+                  >
+                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                      {bank.label.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="font-medium text-xs leading-tight truncate w-full">{bank.label}</div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {errors.bank_id && (

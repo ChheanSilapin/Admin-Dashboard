@@ -14,6 +14,7 @@ const AddCustomerModal = ({
     displayValues,
     errors,
     dropdowns,
+    customerIdPreview,
     banksLoading,
     getBankOptions,
     getBankById,
@@ -54,8 +55,8 @@ const AddCustomerModal = ({
       created_by: 1, // Current user ID - in real app, get from auth context
       Note: formData.Note,
       created_at: new Date().toISOString().split('.')[0] + 'Z',
-      // Legacy fields for backward compatibility
-      name: formData.fullName.trim(),
+      // Legacy fields for backward compatibility - use customer ID if name is empty
+      name: formData.fullName.trim() || formData.CustomerId,
       //email: `${formData.CustomerId.toLowerCase()}@example.com`,
       //phone: '+855 12 345 678',
       joinDate: new Date().toISOString().split('T')[0],
@@ -113,6 +114,8 @@ const AddCustomerModal = ({
             toggleDropdown={toggleDropdown}
             closeAllDropdowns={closeAllDropdowns}
             onSubmit={handleSubmit}
+            isEditMode={false}
+            customerIdPreview={customerIdPreview}
           />
 
           {/* Form Actions - Mobile-optimized */}

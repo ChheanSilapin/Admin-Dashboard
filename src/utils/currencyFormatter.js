@@ -194,6 +194,55 @@ export const formatOnBlur = (value, fieldType, currency = 'USD') => {
 };
 
 /**
+ * Format date to full format with date and time (MM/DD/YYYY HH:MM AM/PM)
+ * @param {string|Date} dateString - The date string or Date object to format
+ * @returns {string} Formatted date string in full format
+ */
+export const formatFullDateTime = (dateString) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) return '';
+
+  // Format date as MM/DD/YYYY
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+
+  // Format time as HH:MM AM/PM
+  const timeString = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  return `${month}/${day}/${year} ${timeString}`;
+};
+
+/**
+ * Format date to date only format (MM/DD/YYYY)
+ * @param {string|Date} dateString - The date string or Date object to format
+ * @returns {string} Formatted date string without time
+ */
+export const formatDateOnly = (dateString) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) return '';
+
+  // Format date as MM/DD/YYYY
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${month}/${day}/${year}`;
+};
+
+/**
  * Get placeholder text based on field type and currency
  * @param {string} fieldType - Type of field ('credit' or 'amount')
  * @param {string} currency - Currency code

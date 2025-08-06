@@ -1,63 +1,82 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckIcon, XMarkIcon, ShieldIcon, KeyIcon } from '../../icons';
+import { rolesAPI, permissionsAPI, rolePermissionsAPI } from '../../services/api';
 
 const RolePermissions = () => {
-  // Mock data for roles and permissions
-  const [roles] = useState([
-    { id: 1, name: 'Admin', description: 'Full system access' },
-    { id: 2, name: 'Manager', description: 'Management level access' },
-    { id: 3, name: 'Sales', description: 'Sales operations access' },
-    { id: 4, name: 'Viewer', description: 'Read-only access' },
-  ]);
+  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [rolePermissions, setRolePermissions] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [permissions] = useState([
-    { id: 1, category: 'Customer', action: 'create', description: 'Create new customers' },
-    { id: 2, category: 'Customer', action: 'read', description: 'View customer information' },
-    { id: 3, category: 'Customer', action: 'update', description: 'Update customer information' },
-    { id: 4, category: 'Customer', action: 'delete', description: 'Delete customers' },
-    { id: 5, category: 'Transaction', action: 'create', description: 'Process transactions' },
-    { id: 6, category: 'Transaction', action: 'read', description: 'View transactions' },
-    { id: 7, category: 'Transaction', action: 'update', description: 'Update transactions' },
-    { id: 8, category: 'Transaction', action: 'delete', description: 'Delete transactions' },
-    { id: 9, category: 'Bank', action: 'create', description: 'Add new banks' },
-    { id: 10, category: 'Bank', action: 'read', description: 'View bank information' },
-    { id: 11, category: 'Bank', action: 'update', description: 'Update bank information' },
-    { id: 12, category: 'Bank', action: 'delete', description: 'Remove banks' },
-    { id: 13, category: 'User', action: 'create', description: 'Create new users' },
-    { id: 14, category: 'User', action: 'read', description: 'View user information' },
-    { id: 15, category: 'User', action: 'update', description: 'Update user information' },
-    { id: 16, category: 'User', action: 'delete', description: 'Delete users' },
-    { id: 17, category: 'Role', action: 'create', description: 'Create new roles' },
-    { id: 18, category: 'Role', action: 'read', description: 'View roles' },
-    { id: 19, category: 'Role', action: 'update', description: 'Update roles' },
-    { id: 20, category: 'Role', action: 'delete', description: 'Delete roles' },
-  ]);
+  // Fetch data from Laravel API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  // Mock role-permission assignments (in real app, this would come from API)
-  const [rolePermissions, setRolePermissions] = useState({
-    1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], // Admin - all permissions
-    2: [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19], // Manager - most permissions except delete
-    3: [1, 2, 3, 5, 6, 9, 10, 14], // Sales - customer and transaction read/create
-    4: [2, 6, 10, 14, 18], // Viewer - read-only permissions
-  });
+        const [rolesResponse, permissionsResponse, rolePermissionsResponse] = await Promise.all([
+          rolesAPI.getAll(),
+          permissionsAPI.getAll(),
+          rolePermissionsAPI.getAll()
+        ]);
 
-  const togglePermission = (roleId, permissionId) => {
-    setRolePermissions(prev => {
-      const rolePerms = prev[roleId] || [];
+        // Handle response format (data property or direct array)
+        const rolesData = rolesResponse.data || rolesResponse;
+        const permissionsData = permissionsResponse.data || permissionsResponse;
+        const rolePermissionsData = rolePermissionsResponse.data || rolePermissionsResponse;
+
+        setRoles(Array.isArray(rolesData) ? rolesData : []);
+        setPermissions(Array.isArray(permissionsData) ? permissionsData : []);
+
+        // Transform role permissions data into the format expected by UI
+        const rolePermissionsMap = {};
+        if (Array.isArray(rolePermissionsData)) {
+          rolePermissionsData.forEach(rp => {
+            if (!rolePermissionsMap[rp.role_id]) {
+              rolePermissionsMap[rp.role_id] = [];
+            }
+            rolePermissionsMap[rp.role_id].push(rp.permission_id);
+          });
+        }
+        setRolePermissions(rolePermissionsMap);
+
+      } catch (err) {
+        console.error('Error fetching role permissions data:', err);
+        setError('Failed to load role permissions data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const togglePermission = async (roleId, permissionId) => {
+    try {
+      const rolePerms = rolePermissions[roleId] || [];
       const hasPermission = rolePerms.includes(permissionId);
 
       if (hasPermission) {
-        return {
+        // Remove permission from role
+        await rolePermissionsAPI.remove(roleId, permissionId);
+        setRolePermissions(prev => ({
           ...prev,
           [roleId]: rolePerms.filter(id => id !== permissionId)
-        };
+        }));
       } else {
-        return {
+        // Add permission to role
+        await rolePermissionsAPI.assign(roleId, permissionId);
+        setRolePermissions(prev => ({
           ...prev,
           [roleId]: [...rolePerms, permissionId]
-        };
+        }));
       }
-    });
+    } catch (err) {
+      console.error('Error updating role permission:', err);
+      setError('Failed to update permission');
+    }
   };
 
   const hasPermission = (roleId, permissionId) => {
@@ -72,6 +91,57 @@ const RolePermissions = () => {
     acc[permission.category].push(permission);
     return acc;
   }, {});
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Role Permissions</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage role-based access control</p>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Role Permissions</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage role-based access control</p>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+          <div className="text-center py-8">
+            <div className="text-red-500 mb-2">
+              <XMarkIcon className="w-12 h-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Error Loading Data</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors duration-200"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

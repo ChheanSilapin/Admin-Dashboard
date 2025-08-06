@@ -31,19 +31,8 @@ const navItems = [
   {
     icon: <BankIcon />,
     name: "Bank",
-    permission: PERMISSIONS.BANK_VIEW,
-    subItems: [
-      {
-        name: "All Banks",
-        path: "/banks",
-        permission: PERMISSIONS.BANK_VIEW,
-      },
-      {
-        name: "Add Bank",
-        path: "/banks/add",
-        permission: PERMISSIONS.BANK_CREATE,
-      },
-    ],
+    path: "/banks",
+    // permission: PERMISSIONS.BANK_VIEW, // Temporarily removed for testing
   },
 ];
 

@@ -6,6 +6,7 @@ import { Filter } from 'lucide-react';
 import { AddCustomerModal, EditCustomerModal, DeleteCustomerModal } from '../../components/modals/customers';
 import { useCustomers } from '../../hooks/useCustomers';
 import { AddButton, EditButton, DeleteButton } from '../../components/ui/PermissionButton';
+import { formatFullDateTime } from '../../utils/currencyFormatter';
 
 const Customers = () => {
   const { formatAmount } = useCurrency();
@@ -14,6 +15,9 @@ const Customers = () => {
     customers,
     loading,
     error,
+    pagination,
+    goToPage,
+    changePerPage,
     addCustomer,
     updateCustomer,
     deleteCustomer
@@ -52,6 +56,19 @@ const Customers = () => {
 
   // Single ref for filter dropdown (responsive)
   const filterDropdownRef = useRef(null);
+  const perPageDropdownRef = useRef(null);
+
+  // Per page dropdown state
+  const [isPerPageDropdownOpen, setIsPerPageDropdownOpen] = useState(false);
+
+  // Smart positioning for per-page dropdown
+  const getDropdownPosition = () => {
+    if (pagination.per_page === 10) {
+      return "absolute top-full right-0 mt-2"; // Open downward for 10 only
+    } else {
+      return "absolute bottom-full right-0 mb-2"; // Open upward for 15, 25, 50
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,22 +76,26 @@ const Customers = () => {
       if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
         setIsFilterDropdownOpen(false);
       }
+      if (perPageDropdownRef.current && !perPageDropdownRef.current.contains(event.target)) {
+        setIsPerPageDropdownOpen(false);
+      }
     };
 
-    if (isFilterDropdownOpen) {
+    if (isFilterDropdownOpen || isPerPageDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isFilterDropdownOpen]);
+  }, [isFilterDropdownOpen, isPerPageDropdownOpen]);
 
   // Enhanced filtering logic with local currency filter
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch =
                          customer.CustomerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.bank_name.toLowerCase().includes(searchTerm.toLowerCase());
+                         customer.bank_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (customer.name && customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     // Local currency filter - independent from global currency
     const matchesCurrency = localCurrency === 'All Currencies' || customer.currency === localCurrency;
@@ -333,32 +354,32 @@ const Customers = () => {
                   #
                 </th>
                 {/* Customer - always visible */}
-                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-sm dark:text-gray-400">
                   Customer
                 </th>
                 {/* Transaction - always visible */}
-                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-sm dark:text-gray-400">
                   Transaction
                 </th>
                 {/* Bank - hidden on mobile */}
-                <th className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                <th className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-start text-sm dark:text-gray-400">
                   Bank
                 </th>
                 {/* Amount - always visible */}
-                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
+                <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-sm dark:text-gray-400">
                   Amount
                 </th>
                 {/* Credit - hidden on mobile */}
-                <th className="hidden lg:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-xs dark:text-gray-400">
+                <th className="hidden lg:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-end text-sm dark:text-gray-400">
                   Credit
                 </th>
                 {/* Date - hidden on mobile */}
-                <th className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                <th className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-sm dark:text-gray-400">
                   Date
                 </th>
                 {/* Actions - hidden for Sales role */}
                 {!isSales() && (
-                  <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-xs dark:text-gray-400">
+                  <th className="px-0.5 py-1 md:px-1 md:py-2 font-medium text-gray-500 text-center text-sm dark:text-gray-400">
                     Actions
                   </th>
                 )}
@@ -381,16 +402,18 @@ const Customers = () => {
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
-                          {customer.name.charAt(0)}
+                          {(customer.name && customer.name.trim() ? customer.name : customer.CustomerId).charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="block font-medium text-gray-800 text-xs dark:text-white/90 truncate">
-                          {customer.name}
-                        </span>
-                        <span className="block text-gray-500 text-xs dark:text-gray-400 truncate">
                           {customer.CustomerId}
                         </span>
+                        {customer.name && customer.name.trim() && (
+                          <span className="block text-gray-500 text-xs dark:text-gray-400 truncate">
+                            {customer.name}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -399,7 +422,7 @@ const Customers = () => {
                   <td className="px-0.5 py-1 md:px-1 md:py-2 text-center">
                     <div className="space-y-1">
                       <span
-                        className={`inline-flex px-1.5 py-0.5 text-xs font-medium rounded-full ${
+                        className={`inline-flex px-1.5 py-0.5 text-sm font-medium rounded-full ${
                           customer.Type === 'Deposit'
                             ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
                             : 'bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-400'
@@ -415,7 +438,7 @@ const Customers = () => {
                   </td>
 
                   {/* Bank Info - hidden on mobile */}
-                  <td className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 text-gray-500 text-start text-xs dark:text-gray-400">
+                  <td className="hidden md:table-cell px-0.5 py-1 md:px-1 md:py-2 text-gray-500 text-start text-sm dark:text-gray-400">
                     <div>
                       <div className="font-medium text-gray-800 dark:text-white/90">{customer.bank_name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">{customer.bank_code}</div>
@@ -423,14 +446,14 @@ const Customers = () => {
                   </td>
 
                   {/* Amount - always visible, enhanced for mobile */}
-                  <td className="px-0.5 py-1 md:px-1 md:py-2 text-end text-gray-500 text-xs dark:text-gray-400">
+                  <td className="px-0.5 py-1 md:px-1 md:py-2 text-end text-gray-500 text-sm dark:text-gray-400">
                     <div className="space-y-1">
                       <span className="block font-medium text-gray-800 dark:text-white/90">
                         {formatAmount(customer.amount, customer.currency)}
                       </span>
                       {/* Show credit on mobile when credit column is hidden */}
-                      <div className="lg:hidden text-xs text-gray-500 dark:text-gray-400">
-                        Credit: {customer.Credit.toLocaleString()}
+                      <div className="lg:hidden text-sm text-gray-500 dark:text-gray-400">
+                        Credit: {Number(customer.Credit).toLocaleString('en-US')}
                       </div>
                     </div>
                   </td>
@@ -438,16 +461,13 @@ const Customers = () => {
                   {/* Credit - hidden on mobile */}
                   <td className="hidden lg:table-cell px-0.5 py-1 md:px-1 md:py-2 text-end text-gray-500 text-xs dark:text-gray-400">
                     <span className="font-medium text-gray-800 dark:text-white/90">
-                      {customer.Credit.toLocaleString()}
+                      {Number(customer.Credit).toLocaleString('en-US')}
                     </span>
                   </td>
 
                   {/* Created Date - hidden on mobile */}
-                  <td className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 text-center text-gray-500 text-xs dark:text-gray-400">
-                    {new Date(customer.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+                  <td className="hidden sm:table-cell px-0.5 py-1 md:px-1 md:py-2 text-center text-gray-500 text-sm dark:text-gray-400">
+                    {formatFullDateTime(customer.created_at)}
                   </td>
 
                   {/* Actions - hidden for Sales role */}
@@ -485,6 +505,99 @@ const Customers = () => {
           </table>
         </div>
       </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && pagination.total > 0 && (
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+          <div className="flex items-center justify-between">
+            {/* Pagination Info - Hidden on mobile */}
+            <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-400">
+              Showing {pagination.from} to {pagination.to} of {pagination.total} customers
+            </div>
+
+            {/* Mobile: Empty div to maintain layout */}
+            <div className="sm:hidden"></div>
+
+            {/* Page Numbers */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(pagination.last_page, 5) }, (_, i) => {
+                let pageNum;
+
+                // Smart pagination: show pages around current page
+                if (pagination.last_page <= 5) {
+                  pageNum = i + 1;
+                } else {
+                  const start = Math.max(1, pagination.current_page - 2);
+                  const end = Math.min(pagination.last_page, start + 4);
+                  pageNum = start + i;
+
+                  if (pageNum > end) return null;
+                }
+
+                const isCurrentPage = pageNum === pagination.current_page;
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => goToPage(pageNum)}
+                    className={`w-8 h-8 text-sm rounded-lg flex items-center justify-center transition-colors ${
+                      isCurrentPage
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Per Page Selector - Hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Per page:</span>
+              <div ref={perPageDropdownRef} className="relative">
+                <button
+                  onClick={() => setIsPerPageDropdownOpen(!isPerPageDropdownOpen)}
+                  className="h-8 px-3 py-1.5 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors duration-200 cursor-pointer flex items-center gap-2 whitespace-nowrap"
+                >
+                  <span>{pagination.per_page}</span>
+                  <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${isPerPageDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Per Page Dropdown */}
+                {isPerPageDropdownOpen && (
+                  <div className={`${getDropdownPosition()} w-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden`}>
+                    {[10, 15, 25, 50].map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => {
+                          changePerPage(option);
+                          setIsPerPageDropdownOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-sm transition-colors duration-200 flex items-center justify-between ${
+                          pagination.per_page === option
+                            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                        }`}
+                      >
+                        <span>{option}</span>
+                        {pagination.per_page === option && (
+                          <svg className="w-3 h-3 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile: Empty div to maintain layout */}
+            <div className="sm:hidden"></div>
+          </div>
+        </div>
       )}
 
       {/* Add Customer Modal */}

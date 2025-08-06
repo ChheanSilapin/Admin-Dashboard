@@ -105,6 +105,7 @@ const EditCustomerModal = ({
             toggleDropdown={toggleDropdown}
             closeAllDropdowns={closeAllDropdowns}
             onSubmit={handleSubmit}
+            isEditMode={true}
           />
 
           {/* Form Actions - Mobile-optimized */}

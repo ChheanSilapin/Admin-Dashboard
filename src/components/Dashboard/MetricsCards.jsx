@@ -25,6 +25,44 @@ const MetricsCards = () => {
 
   // Calculate metrics from real data with growth percentages
   const calculateMetrics = () => {
+    // Handle null or undefined dashboardData
+    if (!dashboardData) {
+      return [
+        {
+          title: 'Total Customers',
+          value: '0',
+          change: '0%',
+          changeType: 'neutral',
+          icon: 'users',
+          color: 'blue'
+        },
+        {
+          title: 'Total Transactions',
+          value: '0',
+          change: '0%',
+          changeType: 'neutral',
+          icon: 'transactions',
+          color: 'green'
+        },
+        {
+          title: 'Active Banks',
+          value: '0',
+          change: '0%',
+          changeType: 'neutral',
+          icon: 'banks',
+          color: 'purple'
+        },
+        {
+          title: 'Transaction Volume',
+          value: formatAmountWithoutConversion(0, currentCurrency),
+          change: '0%',
+          changeType: 'neutral',
+          icon: 'volume',
+          color: 'orange'
+        }
+      ];
+    }
+
     const { metrics, monthlyStats } = dashboardData;
 
     if (!metrics || Object.keys(metrics).length === 0) {
