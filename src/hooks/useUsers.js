@@ -16,7 +16,7 @@ export const useUsers = () => {
       setError(null);
       const response = await usersAPI.getAll();
 
-      console.log('Users fetched:', response);
+
 
       // Handle different response formats
       let usersData = [];
@@ -29,7 +29,7 @@ export const useUsers = () => {
       }
 
       setUsers(usersData);
-      console.log('Users set to state:', usersData);
+
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to fetch users');
@@ -42,13 +42,15 @@ export const useUsers = () => {
   const addUser = async (userData) => {
     try {
       setError(null);
+
       const response = await usersAPI.create(userData);
-      
+
       // Handle response format
       const newUser = response.data || response;
       setUsers(prev => [...prev, newUser]);
       return newUser;
     } catch (err) {
+      console.error('Error adding user:', err);
       setError('Failed to add user');
       throw err;
     }

@@ -1,4 +1,4 @@
-// Dashboard and Navigation Icons using Lucide React
+// Dashboard and Navigation Icons using Lucid React
 import {
   Grid3X3,
   UserCircle,
@@ -26,7 +26,9 @@ import {
   Plus,
   Pencil,
   Trash2,
-  Image
+  Image,
+  Columns,
+  List
 } from 'lucide-react';
 
 const mergeClasses = (defaultClasses, customClasses) => {
@@ -168,6 +170,14 @@ export const TrashIcon = ({ className = "w-4 h-4" }) => (
 
 export const PhotoIcon = ({ className = "w-4 h-4" }) => (
   <Image className={className} />
+);
+
+export const ViewColumnsIcon = ({ className = "w-4 h-4" }) => (
+  <Columns className={className} />
+);
+
+export const ListBulletIcon = ({ className = "w-4 h-4" }) => (
+  <List className={className} />
 );
 
 // Export the mergeClasses utility function

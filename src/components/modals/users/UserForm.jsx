@@ -24,11 +24,7 @@ const UserForm = ({
     return classes.filter(Boolean).join(' ');
   };
 
-  // Status options
-  const statusOptions = [
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' }
-  ];
+
 
   return (
     <form id="user-form" onSubmit={onSubmit} autoComplete="off" className="space-y-3 sm:space-y-4 md:space-y-5">
@@ -213,49 +209,7 @@ const UserForm = ({
         </div>
       </div>
 
-      {/* Group 4: Status - Single column */}
-      <div>
-        <label className="mb-1 sm:mb-1.5 block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-400">
-          Status *
-        </label>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => toggleDropdown('status')}
-            className={mergeClasses(
-              inputBaseClasses,
-              'flex items-center justify-between',
-              errors.status ? 'border-red-300 focus:border-red-300 focus:ring-red-500/10' : ''
-            )}
-          >
-            <span className={formData.status ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
-              {formData.status
-                ? statusOptions.find(s => s.value === formData.status)?.label || 'Select Status'
-                : 'Select Status'
-              }
-            </span>
-            <ChevronDownIcon className={`w-4 h-4 transition-transform ${dropdowns.status ? 'rotate-180' : ''}`} />
-          </button>
 
-          {dropdowns.status && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
-              {statusOptions.map((status) => (
-                <button
-                  key={status.value}
-                  type="button"
-                  onClick={() => handleDropdownSelect('status', status.value, status.label)}
-                  className="w-full px-3 py-2 text-left text-xs sm:text-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  {status.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {errors.status && (
-          <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.status}</p>
-        )}
-      </div>
 
       {/* Submit Button */}
       <div className="flex justify-end pt-2 sm:pt-4">

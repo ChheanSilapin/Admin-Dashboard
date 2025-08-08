@@ -91,7 +91,7 @@ const Login = () => {
 
       if (result.success) {
         // Navigation is handled by the useEffect hook above
-        console.log('Login successful:', result.user);
+        //console.log('Login successful:', result.user);
       } else {
         // Error is handled by the useEffect hook that watches auth.error
         console.error('Login failed:', result.error);
@@ -107,16 +107,7 @@ const Login = () => {
       <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
         {/* Left Side - Login Form */}
         <div className="flex flex-col flex-1 w-full lg:w-1/2">
-          {/* Back to Dashboard Link */}
-          <div className="w-full max-w-md pt-10 mx-auto">
-            <Link
-              to="/"
-              className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              <ChevronLeftIcon className="w-5 h-5" />
-              Back to dashboard
-            </Link>
-          </div>
+
 
           {/* Login Form Container */}
           <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">

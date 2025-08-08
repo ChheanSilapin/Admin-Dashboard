@@ -137,16 +137,30 @@ const apiRequest = async (endpoint, options = {}, requireAuth = true) => {
     // Handle different response types
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`;
+      let validationErrors = null;
 
       try {
         const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
+
+        // Handle Laravel validation errors (422 status)
+        if (response.status === 422 && errorData.errors) {
+          validationErrors = errorData.errors;
+          // Create a user-friendly message from validation errors
+          const errorMessages = Object.values(errorData.errors).flat();
+          errorMessage = errorMessages.join(' ');
+        } else {
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        }
       } catch (e) {
         // If response is not JSON, use status text
         errorMessage = response.statusText || errorMessage;
       }
 
-      throw new Error(errorMessage);
+      // Create enhanced error object with validation details
+      const error = new Error(errorMessage);
+      error.status = response.status;
+      error.validationErrors = validationErrors;
+      throw error;
     }
 
     // Handle empty responses (like 204 No Content)
@@ -593,34 +607,34 @@ export const usersAPI = {
 
   // Create new user
   create: (userData) =>
-    apiRequest('/users', {
+    apiRequest('/admin/users', {
       method: 'POST',
       body: JSON.stringify(userData),
     }),
 
   // Update user
   update: (id, userData) =>
-    apiRequest(`/users/${id}`, {
+    apiRequest(`/admin/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     }),
 
   // Delete user
   delete: (id) =>
-    apiRequest(`/users/${id}`, {
+    apiRequest(`/admin/users/${id}`, {
       method: 'DELETE',
     }),
 
   // Update user status
   updateStatus: (id, status) =>
-    apiRequest(`/users/${id}/status`, {
+    apiRequest(`/admin/users/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     }),
 
   // Reset user password
   resetPassword: (id) =>
-    apiRequest(`/users/${id}/reset-password`, {
+    apiRequest(`/admin/users/${id}/reset-password`, {
       method: 'POST',
     }),
 };

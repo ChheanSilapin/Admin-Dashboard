@@ -1,52 +1,82 @@
 import { XIcon } from '../../../icons';
 import { useUserForm } from './useUserForm';
 import UserForm from './UserForm';
+import { useState } from 'react';
 
 const AddUserModal = ({
   isOpen,
   onClose,
   onSubmit
 }) => {
+  // Server error state
+  const [serverError, setServerError] = useState('');
+
   // Use shared form logic
   const {
     formData,
     errors,
     roles,
     rolesLoading,
+    existingUsers,
+    usersLoading,
     dropdowns,
     handleInputChange,
     handleDropdownSelect,
     toggleDropdown,
     validateForm,
-    resetForm
+    resetForm,
+    setServerValidationErrors
   } = useUserForm();
+
+  // Handle modal close
+  const handleClose = () => {
+    resetForm();
+    setServerError('');
+    onClose();
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Clear previous server error
+    setServerError('');
 
     if (!validateForm(false)) {
       return;
     }
 
     try {
-      // Prepare data for API (remove password_confirmation)
-      const { password_confirmation, ...userData } = formData;
-      await onSubmit(userData);
+      // Prepare data for API
+      const { password_confirmation, role_id, status, ...userData } = formData;
+
+      // Convert role_id to roles array with role names
+      const selectedRole = roles.find(role => role.id === parseInt(role_id));
+      const roleName = selectedRole ? selectedRole.name : '';
+
+      // Transform data to match API requirements
+      const apiData = {
+        ...userData,
+        roles: roleName ? [roleName] : [], // Convert to array of role names
+        require_password_reset: true // Add required field
+      };
+
+      await onSubmit(apiData);
 
       // Reset form and close modal on success
-      resetForm();
-      onClose();
+      handleClose();
     } catch (error) {
       console.error('Error creating user:', error);
-      // Error handling is done in the parent component
-    }
-  };
 
-  // Handle modal close
-  const handleClose = () => {
-    resetForm();
-    onClose();
+      // Handle validation errors from server
+      if (error.status === 422 && error.validationErrors) {
+        setServerValidationErrors(error.validationErrors);
+        setServerError('Please fix the validation errors below.');
+      } else {
+        // Display general server error message
+        setServerError(error.message || 'Failed to create user');
+      }
+    }
   };
 
   // Don't render if not open
@@ -75,6 +105,15 @@ const AddUserModal = ({
             <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
               Create a new user account with role and permissions
             </p>
+
+            {/* Server Error Display */}
+            {serverError && (
+              <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {serverError}
+                </p>
+              </div>
+            )}
           </div>
 
           <UserForm

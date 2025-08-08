@@ -24,6 +24,7 @@ const Users = () => {
   const handleAddUser = async (userData) => {
     try {
       await addUser(userData);
+      
     } catch (err) {
       // Error is handled in the hook
     }
@@ -175,7 +176,7 @@ const Users = () => {
                   users.map((user) => {
                     const roleName = getRoleName(user.roles);
                     return (
-                      <tr key={user.id} className="hover:bg-green-50 dark:hover:bg-blue-500/10">
+                      <tr key={`user-${user.id}`} className="hover:bg-green-50 dark:hover:bg-blue-500/10">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">

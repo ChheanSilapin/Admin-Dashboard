@@ -1,6 +1,7 @@
 import { XIcon } from '../../../icons';
 import { useUserForm } from './useUserForm';
 import UserForm from './UserForm';
+import { useState } from 'react';
 
 const EditUserModal = ({
   isOpen,
@@ -8,51 +9,79 @@ const EditUserModal = ({
   onSubmit,
   user = null
 }) => {
+  // Server error state
+  const [serverError, setServerError] = useState('');
+
   // Use shared form logic (for edit mode, pass user data)
   const {
     formData,
     errors,
     roles,
     rolesLoading,
+    existingUsers,
+    usersLoading,
     dropdowns,
     handleInputChange,
     handleDropdownSelect,
     toggleDropdown,
     validateForm,
-    resetForm
+    resetForm,
+    setServerValidationErrors
   } = useUserForm(user);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm(true)) {
+    // Clear previous server error
+    setServerError('');
+
+    if (!validateForm(true, user?.id)) {
       return;
     }
 
     try {
       // Prepare data for API
-      const { password_confirmation, ...userData } = formData;
+      const { password_confirmation, role_id, status, ...userData } = formData;
 
       // Remove password fields if they're empty (keep existing password)
       if (!userData.password) {
         delete userData.password;
       }
 
-      await onSubmit(user.id, userData);
+      // Convert role_id to roles array with role names
+      const selectedRole = roles.find(role => role.id === parseInt(role_id));
+      const roleName = selectedRole ? selectedRole.name : '';
+
+      // Transform data to match API requirements
+      const apiData = {
+        ...userData,
+        roles: roleName ? [roleName] : [], // Convert to array of role names
+        require_password_reset: false // For updates, don't force password reset
+      };
+
+      await onSubmit(user.id, apiData);
 
       // Reset form and close modal on success
-      resetForm();
-      onClose();
+      handleClose();
     } catch (error) {
       console.error('Error updating user:', error);
-      // Error handling is done in the parent component
+
+      // Handle validation errors from server
+      if (error.status === 422 && error.validationErrors) {
+        setServerValidationErrors(error.validationErrors);
+        setServerError('Please fix the validation errors below.');
+      } else {
+        // Display general server error message
+        setServerError(error.message || 'Failed to update user');
+      }
     }
   };
 
   // Handle modal close
   const handleClose = () => {
     resetForm();
+    setServerError('');
     onClose();
   };
 
@@ -82,6 +111,15 @@ const EditUserModal = ({
             <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
               Update user account details and permissions
             </p>
+
+            {/* Server Error Display */}
+            {serverError && (
+              <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {serverError}
+                </p>
+              </div>
+            )}
           </div>
 
           <UserForm

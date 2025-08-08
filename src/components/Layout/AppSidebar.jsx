@@ -40,65 +40,26 @@ const adminItems = [
   {
     icon: <ShieldIcon />,
     name: "Roles",
+    path: "/roles",
     permission: PERMISSIONS.ROLES_VIEW,
-    subItems: [
-      {
-        name: "All Roles",
-        path: "/roles",
-        permission: PERMISSIONS.ROLES_VIEW,
-      },
-      {
-        name: "Add Role",
-        path: "/roles/add",
-        permission: PERMISSIONS.ROLES_CREATE,
-      },
-    ],
   },
   {
     icon: <KeyIcon />,
     name: "Permissions",
+    path: "/permissions",
     permission: PERMISSIONS.PERMISSIONS_VIEW,
-    subItems: [
-      {
-        name: "All Permissions",
-        path: "/permissions",
-        permission: PERMISSIONS.PERMISSIONS_VIEW,
-      },
-      {
-        name: "Add Permission",
-        path: "/permissions/add",
-        permission: PERMISSIONS.PERMISSIONS_CREATE,
-      },
-    ],
   },
   {
     icon: <CogIcon />,
     name: "Role Permissions",
+    path: "/role-permissions",
     permission: PERMISSIONS.ROLE_PERMISSIONS_VIEW,
-    subItems: [
-      {
-        name: "Manage Assignments",
-        path: "/role-permissions",
-        permission: PERMISSIONS.ROLE_PERMISSIONS_VIEW,
-      },
-    ],
   },
   {
     icon: <UserCircleIcon />,
     name: "Authentication",
+    path: "/users",
     permission: PERMISSIONS.USERS_VIEW,
-    subItems: [
-      {
-        name: "Users",
-        path: "/users",
-        permission: PERMISSIONS.USERS_VIEW,
-      },
-      {
-        name: "Login Settings",
-        path: "/auth/settings",
-        permission: PERMISSIONS.USERS_VIEW,
-      },
-    ],
   },
 ];
 

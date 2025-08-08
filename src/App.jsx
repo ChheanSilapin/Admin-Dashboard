@@ -88,7 +88,7 @@ function App() {
             } />
           </Route>
 
-          {/* Auth Routes (outside of AppLayout) */}
+          {/* Auth Routes (outside AppLayout) */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
